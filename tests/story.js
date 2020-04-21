@@ -12,7 +12,7 @@ function execute(...args) {
 
 (async () => {
   try {
-    shell.cd("test");
+    shell.cd("tests");
 
     shell.echo("Starting story test");
 
@@ -23,8 +23,7 @@ function execute(...args) {
 
     const cmd = "../../src/index.js";
 
-    const logTaskHeader = (name) =>
-      console.log(`\n=== Running '${name}' ===\n`);
+    const logTaskHeader = (name) => console.log(`\n=== Running '${name}' ===\n`);
 
     logTaskHeader("jspsych init");
     await execute(cmd, [
@@ -78,6 +77,7 @@ function execute(...args) {
     console.error(err);
     process.exit(1);
   }
+  shell.cd("..");
   shell.rm("-rf", "story");
   process.exit(0); // Do not wait for the timeout set by delay() above
 })();
