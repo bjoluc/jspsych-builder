@@ -1,0 +1,344 @@
+"use strict";
+
+const gulp = require("gulp");
+const loadGulpPlugins = require("gulp-load-plugins");
+const del = require("del");
+const webpack = require("webpack");
+const WebpackDevServer = require("webpack-dev-server");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const chalk = require("chalk");
+const path = require("path");
+const resolveCwd = require("resolve-cwd");
+const Listr = require("listr");
+const slugify = require("slugify");
+const execa = require("execa");
+
+const { promisify } = require("util");
+const pipeline = promisify(require("stream").pipeline);
+
+const {
+  loadDocblockPragmas,
+  getAssetPaths,
+  getJatosStudyMetadata,
+} = require("./util");
+
+// Global constants
+const builderDir = path.resolve(__dirname, "..");
+const builderAssetsDir = builderDir + "/assets";
+const builderNodeModulesDir = builderDir + "/node_modules";
+
+// Load all Gulp plugins into one variable
+const plugins = loadGulpPlugins();
+
+module.exports.compileProjectTemplate = {
+  title: "Compiling project template",
+  task: (ctx) => {
+    const templateDir = builderAssetsDir + "/template";
+    const experiment = ctx.experiment;
+    const input = ctx.userInput;
+
+    const templateData = {
+      experiment,
+      title: input.title,
+      description: input.description,
+      packageName: slugify(input.title, { lower: true }),
+      packageVersion: "0.0.1",
+    };
+
+    return Promise.all([
+      // Copy raw files
+      pipeline(
+        gulp.src([templateDir + "/**/*", "!" + templateDir + "/**/*.tmpl.*"]),
+        gulp.dest(".")
+      ),
+
+      // Compile template files
+      pipeline(
+        gulp.src([templateDir + "/package.tmpl.json"]),
+        plugins.template(templateData),
+        plugins.rename((path) => {
+          path.basename = "package";
+        }),
+        gulp.dest(".")
+      ),
+      pipeline(
+        gulp.src([templateDir + "/src/experiment.tmpl.js"]),
+        plugins.template(templateData),
+        plugins.rename((path) => {
+          path.basename = experiment;
+        }),
+        gulp.dest("src/")
+      ),
+    ]);
+  },
+};
+
+module.exports.installDependencies = {
+  title: "Installing dependencies",
+  task: () => execa("npm", ["install"]),
+};
+
+const prepareContext = {
+  title: "Reading ",
+  task: (ctx, task) => {
+    const experiment = ctx.experiment;
+    task.title += experiment + ".js";
+
+    const experimentFile = "./src/" + experiment + ".js";
+    ctx.absoluteExperimentFilePath = resolveCwd(experimentFile);
+    ctx.meta = loadDocblockPragmas(experimentFile);
+
+    ctx.relativeDistPath = ".jspsych-builder/" + experiment;
+    ctx.dist = path.resolve(ctx.relativeDistPath);
+  },
+};
+
+const clean = {
+  title: "Cleaning build directory",
+  task: (ctx) => del(ctx.dist),
+};
+
+const resolveAssetPaths = {
+  title: "Resolving asset paths",
+  task: async (ctx) => {
+    ctx.assetPaths = await getAssetPaths(ctx.meta);
+  },
+};
+
+const copyAssets = {
+  title: "Copying assets",
+  task: (ctx) => {
+    const assetPaths = ctx.assetPaths;
+    const paths = assetPaths.images.concat(assetPaths.audio, assetPaths.video);
+    if (paths.length > 0) {
+      return pipeline(
+        gulp.src(paths, { base: "media" }),
+        gulp.dest(ctx.dist + "/media")
+      );
+    }
+  },
+};
+
+// Bundle javascript with webpack, transpile it with babel
+const getWebpackConfig = (ctx) => {
+  const config = {
+    entry: builderAssetsDir + "/app.js",
+    output: {
+      filename: "js/app.js",
+      path: ctx.dist,
+    },
+    resolve: {
+      // Try cwd node_modules first, then jspsych-builder node_modules
+      modules: ["node_modules", builderNodeModulesDir],
+      alias: {
+        // Set the current experiment file as an alias so it can be imported in app.js
+        JsPsychBuilderCurrentExperiment: ctx.absoluteExperimentFilePath,
+        // Set jspsych.css and jspsych as aliases so they can be imported in app.js
+        JsPsychCss: resolveCwd("jspsych/css/jspsych.css"),
+        JsPsychJs: resolveCwd("jspsych"),
+      },
+    },
+    resolveLoader: {
+      modules: ["node_modules", builderNodeModulesDir],
+    },
+    plugins: [
+      new MiniCssExtractPlugin({
+        filename: "css/[name].css",
+      }),
+      // Define a global constant with data for usage in app.js
+      new webpack.DefinePlugin({
+        JSPSYCH_BUILDER_CONFIG: JSON.stringify({
+          assetPaths: ctx.assetPaths,
+        }),
+      }),
+    ],
+    module: {
+      rules: [
+        {
+          test: /.js$/,
+          exclude: /node_modules(?![\\\/]jspsych)/,
+          use: {
+            loader: "babel-loader",
+            options: {
+              presets: [require("@babel/preset-env")],
+              plugins: [
+                require("@babel/plugin-proposal-class-properties"),
+                [require("@babel/plugin-transform-classes"), { loose: true }],
+              ],
+            },
+          },
+        },
+        {
+          test: /\.css$/,
+          use: [
+            {
+              loader: MiniCssExtractPlugin.loader,
+              options: { hmr: !ctx.isProduction },
+            },
+            "css-loader",
+          ],
+        },
+        {
+          test: /\.s[ac]ss$/i,
+          use: [
+            {
+              loader: MiniCssExtractPlugin.loader,
+              options: { hmr: !ctx.isProduction },
+            },
+            "css-loader",
+            "sass-loader",
+          ],
+        },
+      ],
+    },
+    mode: ctx.isProduction ? "production" : "development",
+  };
+
+  if (ctx.isProduction) {
+    config.optimization = { minimize: true };
+  } else {
+    config.devtool = "inline-source-map";
+  }
+
+  return config;
+};
+
+const webpackBuild = {
+  title: "Building scripts and styles",
+  task: (ctx) =>
+    new Promise((resolve, reject) => {
+      webpack(getWebpackConfig(ctx), (err, stats) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        if (stats.hasErrors()) {
+          reject(new Error(stats.toString({ all: false, errors: true })));
+          return;
+        }
+        if (stats.hasWarnings()) {
+          console.log(stats.toString({ all: false, warnings: true }));
+        }
+        resolve();
+      });
+    }),
+};
+
+const webpackDevServer = {
+  title: "Starting development server",
+  task: (ctx) => {
+    const webpackConfig = {
+      ...getWebpackConfig(ctx),
+      watch: true,
+    };
+
+    const compiler = webpack(webpackConfig);
+
+    new WebpackDevServer(compiler, {
+      contentBase: ctx.dist,
+      publicPath: "http://localhost:3000/",
+      liveReload: true,
+      hot: true,
+      injectClient: true,
+      stats: {
+        all: false,
+        errors: true,
+        warnings: true,
+      },
+    }).listen(3000, "localhost", (err) => {
+      if (err) {
+        console.error(err);
+      }
+    });
+  },
+};
+
+module.exports.webpackDevServer = webpackDevServer;
+
+const html = {
+  title: "Building index.html",
+  task: (ctx) => {
+    let htmlReplacements = {
+      title: {
+        src: ctx.meta.title + (ctx.isProduction ? "" : " (Development Build)"),
+        tpl: "<title>%s</title>",
+      },
+    };
+
+    if (ctx.isForJatos) {
+      htmlReplacements.jatosjs = "/assets/javascripts/jatos.js";
+    }
+
+    return pipeline(
+      gulp.src(builderAssetsDir + "/index.html"),
+      plugins.htmlReplace(htmlReplacements),
+      plugins.inject(gulp.src(ctx.dist + "/css/**/*"), {
+        addRootSlash: false,
+        ignorePath: ctx.relativeDistPath,
+        quiet: true,
+      }),
+      plugins.removeEmptyLines({ removeComments: true }),
+      gulp.dest(ctx.dist)
+    );
+  },
+};
+
+// Create a zip archive with the build – either plain or for JATOS
+module.exports.package = {
+  title: "Packaging experiment",
+  task: async (ctx) => {
+    const { experiment, isForJatos, dist, meta } = ctx;
+
+    const filename =
+      experiment + "_" + meta.version + (isForJatos ? ".jzip" : ".zip");
+
+    await pipeline(
+      gulp.src(dist + "/**/*"),
+      plugins.rename((file) => {
+        file.dirname = experiment + "/" + file.dirname;
+      }),
+
+      // Optionally add a .jas file with JATOS metadata
+      plugins.if(
+        isForJatos,
+        plugins.file(
+          experiment + ".jas",
+          JSON.stringify(
+            getJatosStudyMetadata(
+              experiment,
+              meta.title,
+              meta.description,
+              meta.version
+            )
+          )
+        )
+      ),
+
+      plugins.zip(filename),
+      gulp.dest("packaged")
+    );
+
+    ctx.message =
+      "Your build has been exported to " + chalk.cyan("packaged/" + filename);
+    if (isForJatos) {
+      ctx.message +=
+        '\nYou can now import that file with a JATOS server ("import study"). Cheers!';
+    }
+  },
+};
+
+// Composed build task with Listr
+module.exports.build = {
+  title: "Building ",
+  task: (ctx, task) => {
+    task.title += ctx.experiment;
+    return new Listr([
+      prepareContext,
+      resolveAssetPaths,
+      clean,
+      copyAssets,
+      webpackBuild,
+      html,
+    ]);
+  },
+};

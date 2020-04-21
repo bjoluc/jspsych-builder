@@ -1,0 +1,16 @@
+{
+  "name": "<%= packageName %>",
+  "version": "<%= packageVersion %>",
+  "description": "<%= description %>",
+  "scripts": {
+    "jspsych": "jspsych -e <%= experiment %>",
+    "start": "npm run jspsych -- run",
+    "build": "npm run jspsych -- build",
+    "jatos": "npm run jspsych -- jatos"
+  },
+  "dependencies": {
+    "jspsych": "^6.0.0"
+  },
+  "devDependencies": {},
+  "browserslist": ["last 2 versions", "ie >= 9", "ios >= 7"]
+}

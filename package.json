@@ -1,0 +1,61 @@
+{
+  "name": "jspsych-builder",
+  "version": "1.0.0",
+  "description": "A CLI utility to easily develop and package jsPsych experiments",
+  "main": "src/index.js",
+  "bin": {
+    "jspsych": "./src/index.js"
+  },
+  "author": "bjoluc <mail@bjoluc.de>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "scripts": {
+    "test": "node test/story.js"
+  },
+  "dependencies": {
+    "@babel/core": "^7.9.0",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/plugin-transform-classes": "^7.9.5",
+    "@babel/preset-env": "^7.9.5",
+    "@babel/register": "^7.9.0",
+    "babel-loader": "^8.1.0",
+    "chalk": "^4.0.0",
+    "commander": "^5.0.0",
+    "core-js": "^3.6.5",
+    "css-loader": "3.5.2",
+    "del": "^5.1.0",
+    "delay": "4.3.0",
+    "execa": "4.0.0",
+    "glob": "^7.1.6",
+    "glob-promise": "^3.4.0",
+    "gulp": "^4.0.2",
+    "gulp-file": "^0.4.0",
+    "gulp-html-replace": "^1.6.2",
+    "gulp-if": "^3.0.0",
+    "gulp-inject": "^5.0.5",
+    "gulp-load-plugins": "^2.0.3",
+    "gulp-remove-empty-lines": "^0.1.0",
+    "gulp-rename": "^2.0.0",
+    "gulp-template": "5.0.0",
+    "gulp-zip": "^5.0.1",
+    "import-cwd": "^3.0.0",
+    "inquirer": "^7.1.0",
+    "jest-docblock": "^25.3.0",
+    "listr": "^0.14.3",
+    "mini-css-extract-plugin": "0.9.0",
+    "node-sass": "4.13.1",
+    "regenerator-runtime": "^0.13.5",
+    "resolve-cwd": "^3.0.0",
+    "sass-loader": "^8.0.2",
+    "slugify": "1.4.0",
+    "uuid": "^7.0.3",
+    "webpack": "^4.42.1",
+    "webpack-dev-server": "^3.10.3"
+  },
+  "devDependencies": {
+    "axios": "0.19.2",
+    "shelljs": "0.8.3"
+  }
+}
