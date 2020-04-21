@@ -2,17 +2,30 @@
   "name": "jspsych-builder",
   "version": "1.0.0",
   "description": "A CLI utility to easily develop and package jsPsych experiments",
-  "main": "src/index.js",
-  "bin": {
-    "jspsych": "./src/index.js"
-  },
   "author": "bjoluc <mail@bjoluc.de>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bjoluc/jspsych-builder.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bjoluc/jspsych-builder/issues"
+  },
+  "homepage": "https://github.com/bjoluc/jspsych-builder#readme",
+  "main": "src/index.js",
+  "files": [
+    "src",
+    "assets"
+  ],
+  "bin": {
+    "jspsych": "src/index.js"
+  },
   "engines": {
     "node": ">=10.0.0"
   },
   "scripts": {
-    "test": "node test/story.js"
+    "test": "tests/story.js",
+    "commit": "git-cz"
   },
   "dependencies": {
     "@babel/core": "^7.9.0",
@@ -51,11 +64,47 @@
     "sass-loader": "^8.0.2",
     "slugify": "1.4.0",
     "uuid": "^7.0.3",
-    "webpack": "^4.42.1",
+    "webpack": "^4.43.0",
     "webpack-dev-server": "^3.10.3"
   },
   "devDependencies": {
     "axios": "0.19.2",
-    "shelljs": "0.8.3"
+    "shelljs": "0.8.3",
+    "@commitlint/cli": "8.3.5",
+    "@commitlint/config-conventional": "8.3.4",
+    "@semantic-release/changelog": "^5.0.1",
+    "@semantic-release/commit-analyzer": "^8.0.1",
+    "@semantic-release/git": "^9.0.0",
+    "@semantic-release/github": "^7.0.5",
+    "@semantic-release/npm": "^7.0.5",
+    "@semantic-release/release-notes-generator": "^9.0.1",
+    "commitizen": "4.0.4",
+    "conventional-changelog-conventionalcommits": "^4.2.3",
+    "cz-conventional-changelog": "3.1.0",
+    "lint-staged": "10.1.7",
+    "prettier": "2.0.5",
+    "semantic-release": "17.0.6"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "lintstaged": {
+    "{src,tests}/**/*.js": [
+      "prettier --write",
+      "git add"
+    ]
   }
 }
