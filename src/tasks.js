@@ -16,11 +16,7 @@ const execa = require("execa");
 const { promisify } = require("util");
 const pipeline = promisify(require("stream").pipeline);
 
-const {
-  loadDocblockPragmas,
-  getAssetPaths,
-  getJatosStudyMetadata,
-} = require("./util");
+const { loadDocblockPragmas, getAssetPaths, getJatosStudyMetadata } = require("./util");
 
 // Global constants
 const builderDir = path.resolve(__dirname, "..");
@@ -107,14 +103,13 @@ const resolveAssetPaths = {
 
 const copyAssets = {
   title: "Copying assets",
-  task: (ctx) => {
+  task: (ctx, task) => {
     const assetPaths = ctx.assetPaths;
-    const paths = assetPaths.images.concat(assetPaths.audio, assetPaths.video);
-    if (paths.length > 0) {
-      return pipeline(
-        gulp.src(paths, { base: "media" }),
-        gulp.dest(ctx.dist + "/media")
-      );
+    const paths = new Array().concat(...Object.values(assetPaths));
+    if (paths.length === 0) {
+      task.skip("The media pragmas do not match any assets.");
+    } else {
+      return pipeline(gulp.src(paths, { base: "media" }), gulp.dest(ctx.dist + "/media"));
     }
   },
 };
@@ -289,8 +284,7 @@ module.exports.package = {
   task: async (ctx) => {
     const { experiment, isForJatos, dist, meta } = ctx;
 
-    const filename =
-      experiment + "_" + meta.version + (isForJatos ? ".jzip" : ".zip");
+    const filename = experiment + "_" + meta.version + (isForJatos ? ".jzip" : ".zip");
 
     await pipeline(
       gulp.src(dist + "/**/*"),
@@ -304,12 +298,7 @@ module.exports.package = {
         plugins.file(
           experiment + ".jas",
           JSON.stringify(
-            getJatosStudyMetadata(
-              experiment,
-              meta.title,
-              meta.description,
-              meta.version
-            )
+            getJatosStudyMetadata(experiment, meta.title, meta.description, meta.version)
           )
         )
       ),
@@ -318,11 +307,9 @@ module.exports.package = {
       gulp.dest("packaged")
     );
 
-    ctx.message =
-      "Your build has been exported to " + chalk.cyan("packaged/" + filename);
+    ctx.message = "Your build has been exported to " + chalk.cyan("packaged/" + filename);
     if (isForJatos) {
-      ctx.message +=
-        '\nYou can now import that file with a JATOS server ("import study"). Cheers!';
+      ctx.message += '\nYou can now import that file with a JATOS server ("import study"). Cheers!';
     }
   },
 };
@@ -332,13 +319,6 @@ module.exports.build = {
   title: "Building ",
   task: (ctx, task) => {
     task.title += ctx.experiment;
-    return new Listr([
-      prepareContext,
-      resolveAssetPaths,
-      clean,
-      copyAssets,
-      webpackBuild,
-      html,
-    ]);
+    return new Listr([prepareContext, resolveAssetPaths, clean, copyAssets, webpackBuild, html]);
   },
 };
