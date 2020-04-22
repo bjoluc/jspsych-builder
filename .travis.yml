@@ -3,6 +3,7 @@ node_js:
   - 10
   - 12
   - 13
+  - 14
 script:
   - npm run test
 jobs:
@@ -14,6 +15,4 @@ jobs:
       script: skip # Skip the tests this time
       deploy:
         provider: script
-        skip_cleanup: true
-        script:
-          - npx semantic-release
+        script: npx semantic-release
