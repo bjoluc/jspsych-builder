@@ -68,8 +68,6 @@
     "webpack-dev-server": "^3.10.3"
   },
   "devDependencies": {
-    "axios": "0.19.2",
-    "shelljs": "0.8.3",
     "@commitlint/cli": "8.3.5",
     "@commitlint/config-conventional": "8.3.4",
     "@semantic-release/changelog": "^5.0.1",
@@ -78,12 +76,15 @@
     "@semantic-release/github": "^7.0.5",
     "@semantic-release/npm": "^7.0.5",
     "@semantic-release/release-notes-generator": "^9.0.1",
+    "axios": "0.19.2",
     "commitizen": "4.0.4",
     "conventional-changelog-conventionalcommits": "^4.2.3",
     "cz-conventional-changelog": "3.1.0",
+    "husky": "4.2.5",
     "lint-staged": "10.1.7",
     "prettier": "2.0.5",
-    "semantic-release": "17.0.6"
+    "semantic-release": "17.0.6",
+    "shelljs": "0.8.3"
   },
   "config": {
     "commitizen": {
@@ -93,7 +94,16 @@
   "commitlint": {
     "extends": [
       "@commitlint/config-conventional"
-    ]
+    ],
+    "rules": {
+      "subject-case": [
+        2,
+        "always",
+        [
+          "sentence-case"
+        ]
+      ]
+    }
   },
   "husky": {
     "hooks": {
@@ -101,10 +111,9 @@
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
     }
   },
-  "lintstaged": {
+  "lint-staged": {
     "{src,tests}/**/*.js": [
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ]
   }
 }
