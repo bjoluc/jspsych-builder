@@ -13,7 +13,7 @@ jobs:
       if: branch = master
       node_js: lts/*
       script: skip # Skip the tests this time
-      cleanup: false
       deploy:
+        skip_cleanup: true
         provider: script
         script: npx semantic-release
