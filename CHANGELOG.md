@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.0.2](https://github.com/bjoluc/jspsych-builder/compare/v1.0.1...v1.0.2) (2020-04-22)
+
+
+### Bug Fixes
+
+* **Assets:** Fix asset resolution ([43d51be](https://github.com/bjoluc/jspsych-builder/commit/43d51be2a0d781d83d981131fa72dce24c8313ee))
+
 ### [1.0.1](https://github.com/bjoluc/jspsych-builder/compare/v1.0.0...v1.0.1) (2020-04-22)
 
 
