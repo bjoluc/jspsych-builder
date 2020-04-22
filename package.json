@@ -102,6 +102,13 @@
         [
           "sentence-case"
         ]
+      ],
+      "scope-case": [
+        2,
+        "never",
+        [
+          "lower-case"
+        ]
       ]
     }
   },
