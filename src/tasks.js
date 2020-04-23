@@ -86,6 +86,16 @@ const prepareContext = {
     ctx.absoluteExperimentFilePath = resolveCwd(experimentFile);
     ctx.meta = loadDocblockPragmas(experimentFile);
 
+    for (let pragma of ["title", "description", "version"]) {
+      if (typeof ctx.meta[pragma] === "undefined") {
+        throw new Error(
+          `${chalk.bold(experimentFile)} does not specify a "${pragma}" pragma (like ${
+            chalk.blue(`@${pragma} `) + chalk.green(`My ${pragma}`)
+          }). Please add it and try again.`
+        );
+      }
+    }
+
     ctx.relativeDistPath = ".jspsych-builder/" + experiment;
     ctx.dist = path.resolve(ctx.relativeDistPath);
   },
