@@ -10,7 +10,7 @@ All notable changes to this project will be documented in this file. See
 
 * **`init` command:** Include `jspsych-builder` as local dev dependency ([2726171](https://github.com/bjoluc/jspsych-builder/commit/2726171d3cbb1577cc551f272035c0e6d6a74c9e))
 * **CLI:** Add update notification using `update-notifier` ([7b21875](https://github.com/bjoluc/jspsych-builder/commit/7b218752c5c3aa4a146032e2eaebdfff900e49e4))
-* **Experiments:** Support custom  and  functions ([6f11826](https://github.com/bjoluc/jspsych-builder/commit/6f11826470108f3ef58128e556d76e2b647b535e))
+* **Experiments:** Support custom `on_finish` and `on_finish_jatos` functions ([6f11826](https://github.com/bjoluc/jspsych-builder/commit/6f11826470108f3ef58128e556d76e2b647b535e))
 
 
 ### Bug Fixes
