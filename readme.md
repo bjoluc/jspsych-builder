@@ -69,6 +69,9 @@ This is also where jsPsych has been saved to.
 The `src` directory is where you write your actual experiments, and `styles` is the place for your custom stylesheets.
 Within `src`, there can be multiple experiment files, as well as arbitrary directories and JavaScript files that you can `import` in your experiment files.
 `experiment.js` is just the default name for the first experiment file.
+All `jspsych` commands allow a `-e` option to specify which experiment file shall be used.
+By default, that option is set to `experiment`.
+Changing it to `my-second-experiment` (e.g. `jspsych -e my-second-experiment run`), for instance, would make jsPsych Builder load the `src/my-second-experiment.js` file instead of `src/experiment.js`.
 
 ## Writing experiments
 
@@ -77,8 +80,9 @@ You can skip part 1 there, as jsPsych Builder does the job for you.
 
 ### Experiment files
 
-Unlike plain jsPsych experiments, experiments developed with jsPsych Builder do not require you to call `jsPsych.init()` yourselves, but instead let you define your timeline in an exported function `createTimeline` in the experiment's main JavaScript file.
-Every other value that you export will be passed as an option to `jsPsych.init()` along with the timeline. Note that you can use all the latest JavaScript features without caring about their browser support, as your code will be transpiled by Babel.
+Unlike plain jsPsych experiments, experiments developed with jsPsych Builder do not require you to call `jsPsych.init()` yourselves, but instead let you define your timeline in an exported function `createTimeline` in the experiment's root JavaScript file.
+Every other value that you export will be passed as an option to [`jsPsych.init()`](https://www.jspsych.org/core_library/jspsych-core/#jspsychinit) along with the timeline.
+Note that you can use all the latest JavaScript features without caring about their browser support, as your code will be transpiled by Babel.
 
 The top of the experiment file contains a special section ("docblock") with meta information ("pragmas") on your experiment.
 Feel free to change these to whatever you want, but make sure the `title`, `description`, and `version` pragmas stay in place.
@@ -88,14 +92,22 @@ Feel free to change these to whatever you want, but make sure the `title`, `desc
 The optional `@imagesDir`, `@audioDir`, and `@videoDir` pragmas have a special functionality.
 You can specify a directory path (or a comma-separated list of paths) within the `media` directory and jsPsych Builder will recursively include all their contents in the final package.
 Additionally, the paths of all the included files will be passed to `jsPsych`'s `preload_images`, `preload_audio`, and `preload_video` options, respectively.
-You can override the paths passed to `jsPsych.init()` by `export`ing the respective `preload_` options yourself from your experiment file.
+You can override the paths passed to [`jsPsych.init()`](https://www.jspsych.org/core_library/jspsych-core/#jspsychinit) by `export`ing the respective `preload_` options yourself from your experiment file.
 
 ### Styles
 
 You can write your style sheets using plain CSS or SASS (.scss).
 You may also import style sheets from node packages.
-Not that you have to `import` your styles (or a root style sheet that imports the others) within your experiment file to make the build system (webpack) include them.
+Note that you have to `import` your styles (or a root style sheet that imports the others) within your experiment file to make the build system (webpack) include them.
 The jsPsych stylesheet itself is imported by default.
+
+### Handling result data
+
+[`jsPsych.init()`](https://www.jspsych.org/core_library/jspsych-core/#jspsychinit) supports an `on_finish` callback function that is executed when the experiment ends.
+By default, jsPsych Builder defines that callback itself to display the result data in the browser window.
+You can `export` `on_finish` from your experiment files to override this behavior.
+When you export your experiment for JATOS, however, the `export`ed `on_finish` function will be ignored and the result data will be sent to the JATOS server instead.
+If you would like to add a custom `on_finish` callback function for JATOS-served experiments, you can export an `on_finish_jatos` function which will be executed before the results are submitted to JATOS, and only when the experiment is served by JATOS.
 
 ## Packaging experiments
 

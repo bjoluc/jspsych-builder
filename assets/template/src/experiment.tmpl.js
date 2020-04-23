@@ -4,7 +4,8 @@
  * @version 0.1
  *
  * The following lines specify which media directories will be packaged and preloaded by jsPsych.
- * Modify them to arbitrary paths within the `media` directory, or delete them.
+ * Modify them to arbitrary paths (or comma-separated lists of paths) within the `media` directory,
+ * or delete them.
  * @imageDir images
  * @audioDir audio
  * @videoDir video
@@ -41,8 +42,8 @@ export function createTimeline(input = {}) {
   return timeline;
 }
 
-// Whatever you `export` from this file will be passed to `jsPsych.init()` (except for `timeline`
-// and `on_finish`)
+// Whatever you `export` from this file will be passed to `jsPsych.init()` (except for `timeline`,
+// which is determined using `createTimeline()`)
 
 // Note: `preload_images`, `preload_audio`, and `preload_video` will be set automatically if you
 // don't export them.

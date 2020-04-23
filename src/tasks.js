@@ -155,7 +155,7 @@ const getWebpackConfig = (ctx) => {
           use: {
             loader: "babel-loader",
             options: {
-              presets: [require("@babel/preset-env")],
+              presets: [[require("@babel/preset-env"), { modules: "commonjs" }]],
               plugins: [
                 require("@babel/plugin-proposal-class-properties"),
                 [require("@babel/plugin-transform-classes"), { loose: true }],
