@@ -16,6 +16,7 @@ const execa = require("execa");
 const { promisify } = require("util");
 const pipeline = promisify(require("stream").pipeline);
 
+const packageJson = require("../package.json");
 const { loadDocblockPragmas, getAssetPaths, getJatosStudyMetadata } = require("./util");
 
 // Global constants
@@ -39,6 +40,7 @@ module.exports.compileProjectTemplate = {
       description: input.description,
       packageName: slugify(input.title, { lower: true }),
       packageVersion: "0.0.1",
+      builderVersion: packageJson.version,
     };
 
     return Promise.all([

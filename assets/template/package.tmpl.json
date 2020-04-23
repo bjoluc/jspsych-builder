@@ -11,6 +11,8 @@
   "dependencies": {
     "jspsych": "^6.0.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "jspsych-builder": "^<%= builderVersion %>"
+  },
   "browserslist": ["last 2 versions", "ie >= 9", "ios >= 7"]
 }
