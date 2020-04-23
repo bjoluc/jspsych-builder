@@ -9,6 +9,8 @@ const interactions = require("./interactions");
 
 const program = new Command();
 
+const defaultExperiment = "experiment";
+
 // Common CLI options
 program
   .name("jspsych")
@@ -16,7 +18,7 @@ program
   .option(
     "-e, --experiment [experiment-file]",
     "The name of the main experiment file (without the '.js')",
-    "experiment"
+    defaultExperiment
   );
 
 // CLI commands
@@ -28,11 +30,9 @@ program
     "Do not ask questions, but use the values provided via the other options."
   )
   .option("-t --title [title]", "The title of the new experiment")
-  .option(
-    "-d --description [description]",
-    "The description of the new experiment"
-  )
+  .option("-d --description [description]", "The description of the new experiment")
   .action(async (options) => {
+    const experiment = program.experiment;
     const defaults = {};
     if (typeof options.title === "string") {
       defaults.title = options.title;
@@ -65,20 +65,21 @@ program
     }
 
     const tasks = require("./tasks");
-    const runner = new Listr([
-      tasks.compileProjectTemplate,
-      tasks.installDependencies,
-    ]);
+    const runner = new Listr([tasks.compileProjectTemplate, tasks.installDependencies]);
 
     const ctx = {
-      experiment: program.experiment,
+      experiment,
       userInput,
     };
 
     try {
       await runner.run(ctx);
       console.log(
-        "\nDone! Now run " + chalk.bold("jspsych run") + " to start developing!"
+        "\nDone! Now run " +
+          chalk.bold(
+            experiment === defaultExperiment ? "jspsych run" : `jspsych -e ${experiment} run`
+          ) +
+          " to start developing!"
       );
     } catch (err) {
       console.error(err.message);
