@@ -63,6 +63,7 @@
     "sass": "1.26.3",
     "sass-loader": "^8.0.2",
     "slugify": "1.4.0",
+    "update-notifier": "4.1.0",
     "uuid": "^7.0.3",
     "webpack": "^4.43.0",
     "webpack-dev-server": "^3.10.3"
