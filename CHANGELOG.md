@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.0](https://github.com/bjoluc/jspsych-builder/compare/v1.0.2...v1.1.0) (2020-04-23)
+
+
+### Features
+
+* **`init` command:** Include `jspsych-builder` as local dev dependency ([2726171](https://github.com/bjoluc/jspsych-builder/commit/2726171d3cbb1577cc551f272035c0e6d6a74c9e))
+* **CLI:** Add update notification using `update-notifier` ([7b21875](https://github.com/bjoluc/jspsych-builder/commit/7b218752c5c3aa4a146032e2eaebdfff900e49e4))
+* **Experiments:** Support custom  and  functions ([6f11826](https://github.com/bjoluc/jspsych-builder/commit/6f11826470108f3ef58128e556d76e2b647b535e))
+
+
+### Bug Fixes
+
+* **`init` command:** Optionally include `-e` option in success message ([823db5b](https://github.com/bjoluc/jspsych-builder/commit/823db5b45b27f3d39bae45f0c250232347d1e230))
+* **CLI:** Throw error if required pragma is missing in experiment file ([e3d5db3](https://github.com/bjoluc/jspsych-builder/commit/e3d5db3dddb170c9529449035d5cfd242a5aa8c2))
+
 ### [1.0.2](https://github.com/bjoluc/jspsych-builder/compare/v1.0.1...v1.0.2) (2020-04-22)
 
 
