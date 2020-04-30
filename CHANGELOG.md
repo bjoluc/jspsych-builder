@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.0](https://github.com/bjoluc/jspsych-builder/compare/v1.1.0...v1.2.0) (2020-04-30)
+
+
+### Features
+
+* **Experiments:** Support inclusion of arbitrary files via `[@misc](https://github.com/misc)Dir` ([e698c18](https://github.com/bjoluc/jspsych-builder/commit/e698c18c0767eb52146c1fec3bc14cd7abdd7344))
+
 ## [1.1.0](https://github.com/bjoluc/jspsych-builder/compare/v1.0.2...v1.1.0) (2020-04-23)
 
 
