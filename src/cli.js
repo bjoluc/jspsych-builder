@@ -90,7 +90,7 @@ program
   .command("run")
   .description(
     "Builds the experiment, starts a local development server, and watches for changes to the source files. " +
-      "Once a source file is modified, the build is updated, as well as any browser window running the experiment."
+      "Once a source file is modified, the build is updated, as is any browser window running the experiment."
   )
   .action(async () => {
     const tasks = require("./tasks");
