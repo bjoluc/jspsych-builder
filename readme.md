@@ -94,6 +94,11 @@ You can specify a directory path (or a comma-separated list of paths) within the
 Additionally, the paths of all the included files will be passed to `jsPsych`'s `preload_images`, `preload_audio`, and `preload_video` options, respectively.
 You can override the paths passed to [`jsPsych.init()`](https://www.jspsych.org/core_library/jspsych-core/#jspsychinit) by `export`ing the respective `preload_` options yourself from your experiment file.
 
+There may also be cases in which you want to include files that do not belong to one of the three categories above.
+Therefore, jsPsych builder also accepts a `@miscDir` pragma that serves the sole purpose of adding additional directories to the package.
+Again, you can specify one or multiple directory paths within the media directory.
+Note that the contents of the directories specified in `@miscDir` will not be preloaded by jsPsych.
+
 ### Styles
 
 You can write your style sheets using plain CSS or SASS (.scss).

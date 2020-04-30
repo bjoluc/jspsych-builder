@@ -39,6 +39,7 @@ exports.getAssetPaths = async (pragmas) => {
       ["images", pragmas.imageDir],
       ["audio", pragmas.audioDir],
       ["video", pragmas.videoDir],
+      ["misc", pragmas.miscDir],
     ].map(async ([assetType, assetDirs]) => {
       assetPaths[assetType] = typeof assetDirs == "undefined" ? [] : await resolvePaths(assetDirs);
     })
