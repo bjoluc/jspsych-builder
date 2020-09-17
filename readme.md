@@ -69,7 +69,7 @@ This is also where jsPsych has been saved to.
 The `src` directory is where you write your actual experiments, and `styles` is the place for your custom stylesheets.
 Within `src`, there can be multiple experiment files, as well as arbitrary directories and JavaScript files that you can `import` in your experiment files.
 `experiment.js` is just the default name for the first experiment file.
-All `jspsych` commands allow a `-e` option to specify which experiment file shall be used.
+All `jspsych` commands allow an `-e` option to specify which experiment file shall be used.
 By default, that option is set to `experiment`.
 Changing it to `my-second-experiment` (e.g. `jspsych -e my-second-experiment run`), for instance, would make jsPsych Builder load the `src/my-second-experiment.js` file instead of `src/experiment.js`.
 
@@ -80,7 +80,7 @@ You can skip part 1 there, as jsPsych Builder does the job for you.
 
 ### Experiment files
 
-Unlike plain jsPsych experiments, experiments developed with jsPsych Builder do not require you to call `jsPsych.init()` yourselves, but instead let you define your timeline in an exported function `createTimeline` in the experiment's root JavaScript file.
+Unlike plain jsPsych experiments, experiments developed with jsPsych Builder do not require you to call `jsPsych.init()` yourself, but instead let you define your timeline in an exported function `createTimeline` in the experiment's root JavaScript file.
 Every other value that you export will be passed as an option to [`jsPsych.init()`](https://www.jspsych.org/core_library/jspsych-core/#jspsychinit) along with the timeline.
 Note that you can use all the latest JavaScript features without caring about their browser support, as your code will be transpiled by Babel.
 
