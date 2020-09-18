@@ -13,6 +13,7 @@ const defaultExperiment = "experiment";
 
 // Common CLI options
 program
+  .storeOptionsAsProperties(false)
   .name("jspsych")
   .version(packageJson.version)
   .option(
@@ -31,8 +32,10 @@ program
   )
   .option("-t --title [title]", "The title of the new experiment")
   .option("-d --description [description]", "The description of the new experiment")
-  .action(async (options) => {
-    const experiment = program.experiment;
+  .action(async (command) => {
+    const options = command.opts();
+    const experiment = program.opts().experiment;
+
     const defaults = {};
     if (typeof options.title === "string") {
       defaults.title = options.title;
@@ -50,7 +53,7 @@ program
             " and " +
             chalk.bold("--description") +
             " have to be set in " +
-            chalk.bold("--non-interactive") +
+            chalk.bold("--no-interaction") +
             " mode."
         );
         process.exit(1);
@@ -97,7 +100,7 @@ program
     const runner = new Listr([tasks.build, tasks.webpackDevServer]);
 
     const ctx = {
-      experiment: program.experiment,
+      experiment: program.opts().experiment,
       isProduction: false,
       isForJatos: false,
     };
@@ -120,7 +123,7 @@ program
     const runner = new Listr([tasks.build, tasks.package]);
 
     const ctx = {
-      experiment: program.experiment,
+      experiment: program.opts().experiment,
       isProduction: true,
       isForJatos: false,
     };
@@ -144,7 +147,7 @@ program
     const runner = new Listr([tasks.build, tasks.package]);
 
     const ctx = {
-      experiment: program.experiment,
+      experiment: program.opts().experiment,
       isProduction: true,
       isForJatos: true,
     };
