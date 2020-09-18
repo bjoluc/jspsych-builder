@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.2.1](https://github.com/bjoluc/jspsych-builder/compare/v1.2.0...v1.2.1) (2020-09-18)
+
+
+### Bug Fixes
+
+* **Template:** Use jsPsych GitHub repo in package.json ([a74be9c](https://github.com/bjoluc/jspsych-builder/commit/a74be9c6d15377c0349aa327a64c10f251b31ac7))
+* **Webpack Config:** Increase size warning threshold ([a0cab37](https://github.com/bjoluc/jspsych-builder/commit/a0cab37f3c837d6d9157cd5613689c9bd0134aa7))
+
 ## [1.2.0](https://github.com/bjoluc/jspsych-builder/compare/v1.1.0...v1.2.0) (2020-04-30)
 
 
