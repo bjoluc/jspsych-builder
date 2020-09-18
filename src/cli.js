@@ -32,7 +32,7 @@ program
   .version(packageJson.version)
   .option(
     "-e, --experiment [experiment-file]",
-    "The name of the main experiment file (without the '.js')",
+    'The name of the experiment file to be considered (without the ".js")',
     defaultExperiment
   );
 
