@@ -198,6 +198,10 @@ const getWebpackConfig = (ctx) => {
         },
       ],
     },
+    performance: {
+      maxEntrypointSize: 512000,
+      maxAssetSize: 512000,
+    },
     mode: ctx.isProduction ? "production" : "development",
   };
 
