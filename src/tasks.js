@@ -18,6 +18,7 @@ const pipeline = promisify(require("stream").pipeline);
 
 const packageJson = require("../package.json");
 const { loadDocblockPragmas, getAssetPaths, getJatosStudyMetadata } = require("./util");
+const { defaultExperiment } = require("./cli");
 
 // Global constants
 const builderDir = path.resolve(__dirname, "..");
@@ -83,7 +84,22 @@ const prepareContext = {
     task.title += experiment + ".js";
 
     const experimentFile = "./src/" + experiment + ".js";
-    ctx.absoluteExperimentFilePath = resolveCwd(experimentFile);
+
+    // Resolve the experiment file
+    try {
+      ctx.absoluteExperimentFilePath = resolveCwd(experimentFile);
+    } catch (e) {
+      if (e.code === "MODULE_NOT_FOUND") {
+        e.message = `Experiment file ${chalk.bold(experimentFile)} does not exist.`;
+
+        if (experiment === defaultExperiment) {
+          e.message += ` Did you forget to set the ${chalk.green("-e [experiment-file]")} option?`;
+        }
+
+        throw e;
+      }
+    }
+
     ctx.meta = loadDocblockPragmas(experimentFile);
 
     for (let pragma of ["title", "description", "version"]) {

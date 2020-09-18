@@ -10,6 +10,20 @@ const interactions = require("./interactions");
 const program = new Command();
 
 const defaultExperiment = "experiment";
+module.exports.defaultExperiment = defaultExperiment;
+
+/**
+ * Invokes the provided callback function, catches any error and prints it to the console.
+ *
+ * @param {() => Promise<Any>} callback
+ */
+async function handleErrors(callback) {
+  try {
+    await callback();
+  } catch (err) {
+    console.error("\n" + chalk.bold(chalk.red("Error:")) + "\n" + err.message);
+  }
+}
 
 // Common CLI options
 program
@@ -75,7 +89,7 @@ program
       userInput,
     };
 
-    try {
+    await handleErrors(async () => {
       await runner.run(ctx);
       console.log(
         "\nDone! Now run " +
@@ -84,9 +98,7 @@ program
           ) +
           " to start developing!"
       );
-    } catch (err) {
-      console.error(err.message);
-    }
+    });
   });
 
 program
@@ -105,11 +117,9 @@ program
       isForJatos: false,
     };
 
-    try {
+    await handleErrors(async () => {
       await runner.run(ctx);
-    } catch (err) {
-      console.error(err.message);
-    }
+    });
   });
 
 program
@@ -128,12 +138,10 @@ program
       isForJatos: false,
     };
 
-    try {
+    await handleErrors(async () => {
       await runner.run(ctx);
       console.log(ctx.message);
-    } catch (err) {
-      console.error(err.message);
-    }
+    });
   });
 
 program
@@ -152,12 +160,10 @@ program
       isForJatos: true,
     };
 
-    try {
+    await handleErrors(async () => {
       await runner.run(ctx);
       console.log(ctx.message);
-    } catch (err) {
-      console.error(err.message);
-    }
+    });
   });
 
 module.exports.program = program;
