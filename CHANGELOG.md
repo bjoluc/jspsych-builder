@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.3.0](https://github.com/bjoluc/jspsych-builder/compare/v1.2.1...v1.3.0) (2020-09-19)
+
+
+### Features
+
+* **CLI:** Enhance CLI (arguments, help messages, bash completion) ([4e7512b](https://github.com/bjoluc/jspsych-builder/commit/4e7512ba01990ae58f1a70a32ef434e14ca149cf))
+* **CLI:** Improve error presentation ([3df327c](https://github.com/bjoluc/jspsych-builder/commit/3df327ce43e6268d2bdc26e1d210ca91d50282b2))
+
 ### [1.2.1](https://github.com/bjoluc/jspsych-builder/compare/v1.2.0...v1.2.1) (2020-09-18)
 
 
