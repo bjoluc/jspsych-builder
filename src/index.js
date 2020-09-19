@@ -9,4 +9,4 @@ const pkg = require("../package.json");
 updateNotifier({ pkg }).notify();
 
 // Run the program
-cli.program.parseAsync(process.argv);
+cli.yargs.argv;

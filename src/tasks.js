@@ -93,7 +93,9 @@ const prepareContext = {
         e.message = `Experiment file ${chalk.bold(experimentFile)} does not exist.`;
 
         if (experiment === defaultExperiment) {
-          e.message += ` Did you forget to set the ${chalk.green("-e [experiment-file]")} option?`;
+          e.message += ` Did you forget to provide the ${chalk.green(
+            "[experiment-file]"
+          )} argument?`;
         }
 
         throw e;

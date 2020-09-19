@@ -25,145 +25,170 @@ async function handleErrors(callback) {
   }
 }
 
-// Common CLI options
-program
-  .storeOptionsAsProperties(false)
-  .name("jspsych")
+/**
+ * Given a yargs instance, configures an optional positional "experiment-file" argument
+ *
+ * @param {yargs.Argv<{}>} yargs
+ */
+function addExperimentFileOption(yargs) {
+  yargs.positional("experiment-file", {
+    alias: ["experiment", "e"],
+    type: "string",
+    default: "experiment",
+    description:
+      "The experiment file (JavaScript) to be read (within" +
+      ' the "src" directory and without the ".js" suffix). ' +
+      'Example: "my-experiment" resolves to "./src/my-experiment.js".',
+  });
+  // TODO make autocompletion for subcommands work
+  // .completion("completion", "ignore this", (current, argv, done) => {
+  //   glob(`src/${current}*.js`, { nodir: true }, (err, matches) => {
+  //     if (err) {
+  //       done([]);
+  //     }
+  //     done(matches.map((path) => path.substring(4, path.length - 3)));
+  //   });
+  // })
+}
+
+/**
+ * Shared handler function for the "build" and "jatos" commands
+ */
+async function buildExperiment(experimentFile, isForJatos = false) {
+  const tasks = require("./tasks");
+  const runner = new Listr([tasks.build, tasks.package]);
+
+  const ctx = {
+    experiment: experimentFile,
+    isProduction: true,
+    isForJatos,
+  };
+
+  await handleErrors(async () => {
+    await runner.run(ctx);
+    console.log(ctx.message);
+  });
+}
+
+const yargs = require("yargs")
+  // Common CLI options
+  .usage("Usage: $0 <command> [options]")
+
+  .group(["help", "version"], "General options:")
+  .help("help")
+  .alias("help", "h")
   .version(packageJson.version)
-  .option(
-    "-e, --experiment [experiment-file]",
-    'The name of the experiment file to be considered (without the ".js")',
-    defaultExperiment
-  );
+  .alias("version", "v")
 
-// CLI commands
-program
-  .command("init")
-  .description("Creates a new jsPsych project in the current directory.")
-  .option(
-    "-n --no-interaction",
-    "Do not ask questions, but use the values provided via the other options."
-  )
-  .option("-t --title [title]", "The title of the new experiment")
-  .option("-d --description [description]", "The description of the new experiment")
-  .action(async (command) => {
-    const options = command.opts();
-    const experiment = program.opts().experiment;
+  .demandCommand()
+  .recommendCommands()
+  .strict()
 
-    const defaults = {};
-    if (typeof options.title === "string") {
-      defaults.title = options.title;
-    }
-    if (typeof options.description === "string") {
-      defaults.description = options.description;
-    }
+  .command({
+    command: "init",
+    desc: "Create a new jsPsych project in the current directory",
+    builder: (yargs) => {
+      yargs.options({
+        title: {
+          alias: "t",
+          type: "string",
+          description: "The title of the new experiment",
+        },
+        description: {
+          alias: "d",
+          type: "string",
+          description: "The description of the new experiment",
+        },
+        "experiment-file": {
+          alias: ["experiment", "e"],
+          type: "string",
+          description:
+            "The name of the experiment JavaScript file to be created in the " +
+            ' "src" directory (without the ".js" suffix).',
+          default: "experiment",
+        },
+        "no-interaction": {
+          alias: "n",
+          type: "boolean",
+          description: "Do not ask questions, but use the values provided via the other options",
+          implies: ["description", "title"],
+        },
+      });
+    },
+    handler: async ({ title, description, experiment, noInteraction }) => {
+      let userInput = { title, description };
 
-    let userInput;
-    if (!options.interaction) {
-      if (!defaults.title || !defaults.description) {
-        console.error(
-          "Both " +
-            chalk.bold("--title") +
-            " and " +
-            chalk.bold("--description") +
-            " have to be set in " +
-            chalk.bold("--no-interaction") +
-            " mode."
-        );
-        process.exit(1);
+      if (!noInteraction) {
+        userInput = await interactions.init(userInput);
+        if (userInput === null) {
+          return;
+        }
+        console.log();
       }
-      userInput = defaults;
-    } else {
-      userInput = await interactions.init(defaults);
-      if (userInput === null) {
-        return;
-      }
-      console.log("");
-    }
 
-    const tasks = require("./tasks");
-    const runner = new Listr([tasks.compileProjectTemplate, tasks.installDependencies]);
+      const tasks = require("./tasks");
 
-    const ctx = {
-      experiment,
-      userInput,
-    };
+      await handleErrors(async () => {
+        await new Listr([tasks.compileProjectTemplate, tasks.installDependencies]).run({
+          experiment,
+          userInput,
+        });
+        console.log("\nDone! Now run " + chalk.bold("jspsych run") + " to start developing!");
+      });
+    },
+  })
 
-    await handleErrors(async () => {
-      await runner.run(ctx);
-      console.log(
-        "\nDone! Now run " +
-          chalk.bold(
-            experiment === defaultExperiment ? "jspsych run" : `jspsych -e ${experiment} run`
-          ) +
-          " to start developing!"
-      );
-    });
-  });
+  .command({
+    command: "run [experiment-file]",
+    desc:
+      "Build the specified experiment, start a local development server, and watch for " +
+      "changes to the source files. " +
+      "Once a source file is modified, update the build and any browser window " +
+      "running the experiment.",
+    builder: (yargs) => {
+      addExperimentFileOption(yargs);
+    },
+    handler: async ({ experimentFile }) => {
+      const tasks = require("./tasks");
 
-program
-  .command("run")
-  .description(
-    "Builds the experiment, starts a local development server, and watches for changes to the source files. " +
-      "Once a source file is modified, the build is updated, as is any browser window running the experiment."
-  )
-  .action(async () => {
-    const tasks = require("./tasks");
-    const runner = new Listr([tasks.build, tasks.webpackDevServer]);
+      await handleErrors(async () => {
+        await new Listr([tasks.build, tasks.webpackDevServer]).run({
+          experiment: experimentFile,
+          isProduction: false,
+          isForJatos: false,
+        });
+      });
+    },
+  })
 
-    const ctx = {
-      experiment: program.opts().experiment,
-      isProduction: false,
-      isForJatos: false,
-    };
+  .command({
+    command: "build [experiment-file] [options]",
+    desc:
+      "Build the specified experiment for deployment. " +
+      "The resulting zip archive contains all the files required to serve the experiment on any machine. " +
+      "If the --jatos flag is set, package the experiment for JATOS instead.",
+    builder: (yargs) => {
+      addExperimentFileOption(yargs);
+      yargs.option("jatos", {
+        alias: "j",
+        type: "boolean",
+        description:
+          "Package the experiment for JATOS. " +
+          "The resulting jzip file can then be imported as a JATOS study by JATOS.",
+      });
+    },
+    handler: ({ experimentFile, jatos }) => buildExperiment(experimentFile, jatos),
+  })
 
-    await handleErrors(async () => {
-      await runner.run(ctx);
-    });
-  });
+  .command({
+    command: "jatos [experiment-file]",
+    desc: "Alias for jspsych build --jatos [experiment-file]",
+    builder: (yargs) => {
+      addExperimentFileOption(yargs);
+    },
+    handler: ({ experimentFile }) => buildExperiment(experimentFile, true),
+  })
 
-program
-  .command("build")
-  .description(
-    "Builds the experiment for deployment. " +
-      "The resulting zip archive contains all the files required to serve the experiment on any machine."
-  )
-  .action(async () => {
-    const tasks = require("./tasks");
-    const runner = new Listr([tasks.build, tasks.package]);
+  .completion("completion", "Generate a completion script for your .bashrc");
 
-    const ctx = {
-      experiment: program.opts().experiment,
-      isProduction: true,
-      isForJatos: false,
-    };
-
-    await handleErrors(async () => {
-      await runner.run(ctx);
-      console.log(ctx.message);
-    });
-  });
-
-program
-  .command("jatos")
-  .description(
-    "Builds the experiment and packages it for JATOS. " +
-      "The resulting jzip file can be imported as a JATOS study by JATOS."
-  )
-  .action(async () => {
-    const tasks = require("./tasks");
-    const runner = new Listr([tasks.build, tasks.package]);
-
-    const ctx = {
-      experiment: program.opts().experiment,
-      isProduction: true,
-      isForJatos: true,
-    };
-
-    await handleErrors(async () => {
-      await runner.run(ctx);
-      console.log(ctx.message);
-    });
-  });
-
-module.exports.program = program;
+module.exports.yargs = yargs;

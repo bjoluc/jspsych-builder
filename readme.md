@@ -22,22 +22,25 @@ Under the hood, jsPsych Builder uses modern web development tools including webp
 
 ## Requirements
 
-jsPsych Builder requires [Node.js](https://nodejs.org) >= 10.0.0 to be installed on your machine.
+jsPsych Builder requires [Node.js](https://nodejs.org) >= 10 to be installed on your machine.
 
 ## Installation
 
 ```bash
-$ npm install -g jspsych-builder
+npm install -g jspsych-builder
 ```
 
 Depending on your system configuration, you may need admin rights to do so.
+
+If you are working on Linux or OSX and bash is your shell, you may enable command completion by running
+`jspsych completion >> ~/.bashrc` (Linux) or `jspsych completion >> ~/.bash_profile` (OSX).
 
 ## Getting started
 
 Create a new directory, open it in a terminal, and issue
 
 ```bash
-$ jspsych init
+jspsych init
 ```
 
 This will ask you a few questions and set up a new jsPsych project for you.
@@ -69,9 +72,9 @@ This is also where jsPsych has been saved to.
 The `src` directory is where you write your actual experiments, and `styles` is the place for your custom stylesheets.
 Within `src`, there can be multiple experiment files, as well as arbitrary directories and JavaScript files that you can `import` in your experiment files.
 `experiment.js` is just the default name for the first experiment file.
-All `jspsych` commands allow an `-e` option to specify which experiment file shall be used.
+All `jspsych` commands take an `experiment-file` argument to specify which experiment file shall be used.
 By default, that option is set to `experiment`.
-Changing it to `my-second-experiment` (e.g. `jspsych -e my-second-experiment run`), for instance, would make jsPsych Builder load the `src/my-second-experiment.js` file instead of `src/experiment.js`.
+Changing it to `my-second-experiment` (e.g. `jspsych run my-second-experiment`), for instance, would make jsPsych Builder load the `src/my-second-experiment.js` file instead of `src/experiment.js`.
 
 ## Writing experiments
 
@@ -118,8 +121,8 @@ If you would like to add a custom `on_finish` callback function for JATOS-served
 
 Once you have finished an experiment, you can run `jspsych build`.
 This will create a zip file with all the files required to serve the experiment on any machine.
-If you want to serve your experiment using [JATOS](https://www.jatos.org/), the `jspsych jatos` command can create a JATOS study file (`.jzip`) that can be imported via the JATOS web interface.
+If you want to serve your experiment using [JATOS](https://www.jatos.org/), run `jspsych build --jatos` (or simply `jspsych jatos`) instead to create a JATOS study file (`.jzip`) that can be imported via the JATOS web interface.
 
 ## Usage of the `jspsych` command
 
-A detailed list of sub-commands and their respective options can be displayed by running `jspsych` without any options, or `jspsych help` with the name of a sub-command.
+A detailed list of sub-commands and their respective options can be displayed by running `jspsych` without any options, or `jspsych --help` with the name of a sub-command.

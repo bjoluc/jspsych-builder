@@ -27,9 +27,9 @@ function execute(...args) {
 
     logTaskHeader("jspsych init");
     await execute(cmd, [
+      "init",
       "-e",
       "my-experiment",
-      "init",
       "-n",
       "-t",
       "My Experiment",
@@ -38,7 +38,7 @@ function execute(...args) {
     ]);
 
     logTaskHeader("jspsych run");
-    const proc = execute(cmd, ["-e", "my-experiment", "run"]);
+    const proc = execute(cmd, ["run", "my-experiment"]);
 
     const address = "http://localhost:3000/";
 
@@ -65,11 +65,15 @@ function execute(...args) {
       }
       shell.rm("-r", "packaged");
     };
-    await execute(cmd, ["-e", "my-experiment", "build"]);
+    await execute(cmd, ["build", "my-experiment"]);
+    checkForBuiltPackage();
+
+    logTaskHeader("jspsych build --jatos");
+    await execute(cmd, ["build", "--jatos", "my-experiment"]);
     checkForBuiltPackage();
 
     logTaskHeader("jspsych jatos");
-    await execute(cmd, ["-e", "my-experiment", "jatos"]);
+    await execute(cmd, ["jatos", "my-experiment"]);
     checkForBuiltPackage();
 
     console.log("\nStory test passed");
