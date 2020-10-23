@@ -228,24 +228,11 @@ const getWebpackConfig = (ctx) => {
         },
         {
           test: /\.css$/,
-          use: [
-            {
-              loader: MiniCssExtractPlugin.loader,
-              options: { hmr: !ctx.isProduction },
-            },
-            "css-loader",
-          ],
+          use: [{ loader: MiniCssExtractPlugin.loader }, "css-loader"],
         },
         {
           test: /\.s[ac]ss$/i,
-          use: [
-            {
-              loader: MiniCssExtractPlugin.loader,
-              options: { hmr: !ctx.isProduction },
-            },
-            "css-loader",
-            "sass-loader",
-          ],
+          use: [{ loader: MiniCssExtractPlugin.loader }, "css-loader", "sass-loader"],
         },
       ],
     },
