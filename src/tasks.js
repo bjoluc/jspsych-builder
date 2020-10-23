@@ -129,6 +129,8 @@ const prepareContext = {
   },
 };
 
+module.exports.prepareContext = prepareContext;
+
 const clean = {
   title: "Cleaning build directory",
   task: (ctx) => del(ctx.dist),
@@ -172,6 +174,8 @@ const copyAssets = {
     }
   },
 };
+
+module.exports.copyAssets = copyAssets;
 
 // Bundle javascript with webpack, transpile it with babel
 const getWebpackConfig = (ctx) => {
@@ -340,6 +344,8 @@ const html = {
     );
   },
 };
+
+module.exports.html = html;
 
 // Composed build task
 module.exports.build = {

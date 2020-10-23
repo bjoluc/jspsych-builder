@@ -4,6 +4,7 @@ const fs = require("fs");
 var glob = require("glob-promise");
 const { v4: uuid } = require("uuid");
 const { extract, parse } = require("jest-docblock");
+const { diff } = require("deep-diff");
 
 /**
  * Parses and returns the docblock pragma data from a specified file
@@ -13,6 +14,25 @@ const { extract, parse } = require("jest-docblock");
 exports.loadDocblockPragmas = (filePath) => {
   const fileContents = fs.readFileSync(filePath).toString();
   return parse(extract(fileContents));
+};
+
+/**
+ * Given two objects a and b, returns a set of top-level keys that have been modified, added, or
+ * deleted in b, compared to a.
+ *
+ * @param {Object} a
+ * @param {Object} b
+ * @returns {Set<string>}
+ */
+exports.getDifferingKeys = (a, b) => {
+  const changedKeys = new Set();
+  const result = diff(a, b);
+  if (result) {
+    for (let property of result) {
+      changedKeys.add(property.path[0]);
+    }
+  }
+  return changedKeys;
 };
 
 /**
