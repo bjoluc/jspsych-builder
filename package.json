@@ -43,6 +43,7 @@
     "glob": "^7.1.6",
     "glob-promise": "^3.4.0",
     "gulp": "^4.0.2",
+    "gulp-cached": "1.1.1",
     "gulp-file": "^0.4.0",
     "gulp-html-replace": "^1.6.2",
     "gulp-if": "^3.0.0",

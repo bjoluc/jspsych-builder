@@ -16,18 +16,37 @@ exports.loadDocblockPragmas = (filePath) => {
 };
 
 /**
- * Given the docblock pragmas from the experiment file, reads the specified image, audio, and video
- * directories recursively and returns an object containing the respective file paths.
+ * Given the docblock pragmas from the experiment file, extracts the specified image, audio, and
+ * video directories and returns an object containing the respective paths.
  */
-exports.getAssetPaths = async (pragmas) => {
-  const resolvePaths = async (pragmaString) => {
-    const directories = pragmaString.split(",");
+exports.getAssetDirectories = (pragmas) => {
+  const assetDirectories = {};
 
+  [
+    ["images", pragmas.imageDir],
+    ["audio", pragmas.audioDir],
+    ["video", pragmas.videoDir],
+    ["misc", pragmas.miscDir],
+  ].map(([assetType, assetDirsString]) => {
+    assetDirectories[assetType] =
+      typeof assetDirsString == "undefined"
+        ? []
+        : assetDirsString.split(",").map((dir) => "media/" + dir);
+  });
+
+  return assetDirectories;
+};
+
+/**
+ * Given the object returned by `getAssetDirectories()`, reads the specified directories recursively
+ * and returns an object containing the respective file paths.
+ */
+exports.getAssetPaths = async (assetDirectories) => {
+  const resolvePaths = async (directories) => {
     const paths = [];
     await Promise.all(
       directories.map(async (dir) => {
-        const matches = await glob("media/" + dir + "/**/*", { nodir: true });
-        paths.push(...matches);
+        paths.concat(await glob(dir + "/**/*", { nodir: true }));
       })
     );
     return paths;
@@ -35,12 +54,7 @@ exports.getAssetPaths = async (pragmas) => {
 
   const assetPaths = {};
   await Promise.all(
-    [
-      ["images", pragmas.imageDir],
-      ["audio", pragmas.audioDir],
-      ["video", pragmas.videoDir],
-      ["misc", pragmas.miscDir],
-    ].map(async ([assetType, assetDirs]) => {
+    Object.entries(assetDirectories).map(async ([assetType, assetDirs]) => {
       assetPaths[assetType] = typeof assetDirs == "undefined" ? [] : await resolvePaths(assetDirs);
     })
   );

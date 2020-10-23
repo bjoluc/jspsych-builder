@@ -1,13 +1,9 @@
 "use strict";
 
-const { Command } = require("commander");
-const Listr = require("listr");
 const chalk = require("chalk");
 
 const packageJson = require("../package.json");
 const interactions = require("./interactions");
-
-const program = new Command();
 
 const defaultExperiment = "experiment";
 module.exports.defaultExperiment = defaultExperiment;
@@ -49,25 +45,6 @@ function addExperimentFileOption(yargs) {
   //     done(matches.map((path) => path.substring(4, path.length - 3)));
   //   });
   // })
-}
-
-/**
- * Shared handler function for the "build" and "jatos" commands
- */
-async function buildExperiment(experimentFile, isForJatos = false) {
-  const tasks = require("./tasks");
-  const runner = new Listr([tasks.build, tasks.package]);
-
-  const ctx = {
-    experiment: experimentFile,
-    isProduction: true,
-    isForJatos,
-  };
-
-  await handleErrors(async () => {
-    await runner.run(ctx);
-    console.log(ctx.message);
-  });
 }
 
 const yargs = require("yargs")
@@ -115,7 +92,7 @@ const yargs = require("yargs")
         },
       });
     },
-    handler: async ({ title, description, experiment, noInteraction }) => {
+    handler: async ({ title, description, experimentFile, noInteraction }) => {
       let userInput = { title, description };
 
       if (!noInteraction) {
@@ -126,15 +103,7 @@ const yargs = require("yargs")
         console.log();
       }
 
-      const tasks = require("./tasks");
-
-      await handleErrors(async () => {
-        await new Listr([tasks.compileProjectTemplate, tasks.installDependencies]).run({
-          experiment,
-          userInput,
-        });
-        console.log("\nDone! Now run " + chalk.bold("jspsych run") + " to start developing!");
-      });
+      await handleErrors(() => require("./commands").init(experimentFile, userInput));
     },
   })
 
@@ -148,17 +117,7 @@ const yargs = require("yargs")
     builder: (yargs) => {
       addExperimentFileOption(yargs);
     },
-    handler: async ({ experimentFile }) => {
-      const tasks = require("./tasks");
-
-      await handleErrors(async () => {
-        await new Listr([tasks.build, tasks.webpackDevServer]).run({
-          experiment: experimentFile,
-          isProduction: false,
-          isForJatos: false,
-        });
-      });
-    },
+    handler: ({ experimentFile }) => handleErrors(() => require("./commands").run(experimentFile)),
   })
 
   .command({
@@ -177,7 +136,8 @@ const yargs = require("yargs")
           "The resulting jzip file can then be imported as a JATOS study by JATOS.",
       });
     },
-    handler: ({ experimentFile, jatos }) => buildExperiment(experimentFile, jatos),
+    handler: ({ experimentFile, jatos }) =>
+      handleErrors(() => require("./commands").build(experimentFile, jatos)),
   })
 
   .command({
@@ -186,9 +146,10 @@ const yargs = require("yargs")
     builder: (yargs) => {
       addExperimentFileOption(yargs);
     },
-    handler: ({ experimentFile }) => buildExperiment(experimentFile, true),
+    handler: ({ experimentFile }) =>
+      handleErrors(() => require("./commands").build(experimentFile, true)),
   })
 
-  .completion("completion", "Generate a completion script for your .bashrc");
+  .completion("completion", "Output a completion script for your .bashrc");
 
 module.exports.yargs = yargs;

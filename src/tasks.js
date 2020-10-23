@@ -17,7 +17,12 @@ const { promisify } = require("util");
 const pipeline = promisify(require("stream").pipeline);
 
 const packageJson = require("../package.json");
-const { loadDocblockPragmas, getAssetPaths, getJatosStudyMetadata } = require("./util");
+const {
+  loadDocblockPragmas,
+  getAssetDirectories,
+  getAssetPaths,
+  getJatosStudyMetadata,
+} = require("./util");
 const { defaultExperiment } = require("./cli");
 
 // Global constants
@@ -47,7 +52,7 @@ module.exports.compileProjectTemplate = {
     return Promise.all([
       // Copy raw files
       pipeline(
-        gulp.src([templateDir + "/**/*", "!" + templateDir + "/**/*.tmpl.*"]),
+        gulp.src([templateDir + "/**/*", "!" + templateDir + "/**/*.tmpl.*"], { dot: true }),
         gulp.dest(".")
       ),
 
@@ -79,7 +84,7 @@ module.exports.installDependencies = {
 
 const prepareContext = {
   title: "Reading ",
-  task: (ctx, task) => {
+  task: async (ctx, task) => {
     const experiment = ctx.experiment;
     task.title += experiment + ".js";
 
@@ -116,6 +121,11 @@ const prepareContext = {
 
     ctx.relativeDistPath = ".jspsych-builder/" + experiment;
     ctx.dist = path.resolve(ctx.relativeDistPath);
+
+    ctx.assetDirs = getAssetDirectories(ctx.meta);
+    ctx.assetDirsList = new Array().concat(...Object.values(ctx.assetDirs));
+    ctx.assetDirGlobs = ctx.assetDirsList.map((dir) => dir + "/**/*");
+    ctx.assetPaths = await getAssetPaths(ctx.assetDirs);
   },
 };
 
@@ -124,22 +134,41 @@ const clean = {
   task: (ctx) => del(ctx.dist),
 };
 
-const resolveAssetPaths = {
-  title: "Resolving asset paths",
-  task: async (ctx) => {
-    ctx.assetPaths = await getAssetPaths(ctx.meta);
-  },
-};
-
 const copyAssets = {
   title: "Copying assets",
   task: (ctx, task) => {
-    const assetPaths = ctx.assetPaths;
-    const paths = new Array().concat(...Object.values(assetPaths));
-    if (paths.length === 0) {
-      task.skip("The media pragmas do not match any assets.");
+    if (ctx.assetDirGlobs.length === 0) {
+      task.skip("No asset directories have been specified.");
     } else {
-      return pipeline(gulp.src(paths, { base: "media" }), gulp.dest(ctx.dist + "/media"));
+      const copy = () =>
+        pipeline(
+          gulp.src(ctx.assetDirGlobs, { base: "media" }),
+
+          // For watching: Memorize the files and exclude asset files that did not change since the last copying
+          plugins.cached("assets", { optimizeMemory: true }),
+
+          gulp.dest(ctx.dist + "/media")
+        );
+
+      if (ctx.watchAssets) {
+        task.title += " and starting to watch asset directories";
+        const watcher = gulp.watch(
+          ctx.assetDirsList,
+          { events: ["add", "addDir", "change", "unlink", "unlinkDir"] },
+          copy
+        );
+
+        // Mirror deletion of files and directories
+        const mirrorDeletion = (deletedPath) => {
+          del.sync(path.resolve(ctx.dist, path.relative(path.resolve("."), deletedPath)));
+        };
+        watcher.on("unlink", mirrorDeletion);
+        watcher.on("unlinkDir", mirrorDeletion);
+
+        ctx.assetWatcher = watcher;
+      }
+
+      return copy();
     }
   },
 };
@@ -312,6 +341,15 @@ const html = {
   },
 };
 
+// Composed build task
+module.exports.build = {
+  title: "Building ",
+  task: (ctx, task) => {
+    task.title += ctx.experiment;
+    return new Listr([prepareContext, clean, copyAssets, webpackBuild, html]);
+  },
+};
+
 // Create a zip archive with the build – either plain or for JATOS
 module.exports.package = {
   title: "Packaging experiment",
@@ -345,14 +383,5 @@ module.exports.package = {
     if (isForJatos) {
       ctx.message += '\nYou can now import that file with a JATOS server ("import study"). Cheers!';
     }
-  },
-};
-
-// Composed build task with Listr
-module.exports.build = {
-  title: "Building ",
-  task: (ctx, task) => {
-    task.title += ctx.experiment;
-    return new Listr([prepareContext, resolveAssetPaths, clean, copyAssets, webpackBuild, html]);
   },
 };
