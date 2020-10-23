@@ -85,10 +85,19 @@ You can skip part 1 there, as jsPsych Builder does the job for you.
 
 Unlike plain jsPsych experiments, experiments developed with jsPsych Builder do not require you to call `jsPsych.init()` yourself, but instead let you define your timeline in an exported function `createTimeline` in the experiment's root JavaScript file.
 Every other value that you export will be passed as an option to [`jsPsych.init()`](https://www.jspsych.org/core_library/jspsych-core/#jspsychinit) along with the timeline.
-Note that you can use all the latest JavaScript features without caring about their browser support, as your code will be transpiled by Babel.
+Note that you can use (pretty much) all the latest JavaScript features without caring about their browser support, as your code will be transpiled by Babel.
 
 The top of the experiment file contains a special section ("docblock") with meta information ("pragmas") on your experiment.
 Feel free to change these to whatever you want, but make sure the `title`, `description`, and `version` pragmas stay in place.
+
+### jsPsych Plugins
+
+In order to use jsPsych plugins, they need to be imported within your experiment file.
+The following line, for instance, makes the build system include the `html-keyboard-response` plugin:
+
+```js
+import "jspsych/plugins/jspsych-html-keyboard-response";
+```
 
 ### Media
 
