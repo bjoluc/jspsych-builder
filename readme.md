@@ -102,12 +102,12 @@ import "jspsych/plugins/jspsych-html-keyboard-response";
 ### Media
 
 The optional `@imagesDir`, `@audioDir`, and `@videoDir` pragmas have a special functionality.
-You can specify a directory path (or a comma-separated list of paths) within the `media` directory and jsPsych Builder will recursively include all their contents in the final package.
+You can specify a directory path (or a comma-separated list of paths) within the `media` directory and jsPsych Builder will recursively include all their contents in the build.
 Additionally, the paths of all the included files will be passed to `jsPsych`'s `preload_images`, `preload_audio`, and `preload_video` options, respectively.
 You can override the paths passed to [`jsPsych.init()`](https://www.jspsych.org/core_library/jspsych-core/#jspsychinit) by `export`ing the respective `preload_` options yourself from your experiment file.
 
 There may also be cases in which you want to include files that do not belong to one of the three categories above.
-Therefore, jsPsych builder also accepts a `@miscDir` pragma that serves the sole purpose of adding additional directories to the package.
+Therefore, jsPsych builder also supports a `@miscDir` pragma that serves the sole purpose of adding additional directories to the build.
 Again, you can specify one or multiple directory paths within the media directory.
 Note that the contents of the directories specified in `@miscDir` will not be preloaded by jsPsych.
 
