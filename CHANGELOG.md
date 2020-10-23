@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.4.1](https://github.com/bjoluc/jspsych-builder/compare/v1.4.0...v1.4.1) (2020-10-23)
+
+
+### Bug Fixes
+
+* **webpack:** Revert to webpack v4 until v5 is more stable ([855d686](https://github.com/bjoluc/jspsych-builder/commit/855d6867c4a55090208f717b4a99f57e45fee71a))
+
 ## [1.4.0](https://github.com/bjoluc/jspsych-builder/compare/v1.3.0...v1.4.0) (2020-10-23)
 
 
