@@ -88,7 +88,7 @@
     "husky": "4.3.0",
     "lint-staged": "10.4.2",
     "prettier": "2.1.2",
-    "semantic-release": "17.2.1",
+    "semantic-release": "17.2.3",
     "shelljs": "0.8.4"
   },
   "config": {
