@@ -1,7 +1,7 @@
 /**
  * @title <%= title %>
  * @description <%= description %>
- * @version 0.1
+ * @version 0.1.0
  *
  * The following lines specify which media directories will be packaged and preloaded by jsPsych.
  * Modify them to arbitrary paths (or comma-separated lists of paths) within the `media` directory,

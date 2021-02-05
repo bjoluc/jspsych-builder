@@ -84,15 +84,15 @@ function execute(...args) {
       shell.rm("-r", "packaged");
     };
     await execute(cmd, ["build", "my-experiment"]);
-    checkForBuiltPackage("my-experiment_0.1.zip");
+    checkForBuiltPackage("my-experiment_0.1.0.zip");
 
     logTaskHeader("jspsych build --jatos");
     await execute(cmd, ["build", "--jatos", "my-experiment"]);
-    checkForBuiltPackage("my-experiment_0.1.jzip");
+    checkForBuiltPackage("my-experiment_0.1.0.jzip");
 
     logTaskHeader("jspsych jatos");
     await execute(cmd, ["jatos", "my-experiment"]);
-    checkForBuiltPackage("my-experiment_0.1.jzip");
+    checkForBuiltPackage("my-experiment_0.1.0.jzip");
 
     console.log("\nStory test passed");
   } catch (err) {
