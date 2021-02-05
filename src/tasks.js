@@ -276,12 +276,7 @@ const webpackBuild = {
 const webpackDevServer = {
   title: "Starting development server",
   task: (ctx) => {
-    const webpackConfig = {
-      ...getWebpackConfig(ctx),
-      watch: true,
-    };
-
-    const compiler = webpack(webpackConfig);
+    const compiler = webpack(getWebpackConfig(ctx));
 
     new WebpackDevServer(compiler, {
       contentBase: ctx.dist,
