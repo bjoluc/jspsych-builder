@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [1.4.2](https://github.com/bjoluc/jspsych-builder/compare/v1.4.1...v1.4.2) (2021-02-05)
+
+
+### Bug Fixes
+
+* **Template:** Set the version pragma to `0.1.0` for new experiments ([039abc0](https://github.com/bjoluc/jspsych-builder/commit/039abc07f2511094d1d093c160db3b22d3342aee))
+* **Template:** Update jsPsych version to v6.2.0 ([699d166](https://github.com/bjoluc/jspsych-builder/commit/699d166d50534e6964ea6ec83330f9edf5cdcb61))
+
 ### [1.4.1](https://github.com/bjoluc/jspsych-builder/compare/v1.4.0...v1.4.1) (2020-10-23)
 
 
