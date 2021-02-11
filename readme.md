@@ -22,7 +22,7 @@ Under the hood, jsPsych Builder uses modern web development tools including webp
 
 ## Requirements
 
-jsPsych Builder requires [Node.js](https://nodejs.org) >= 10 to be installed on your machine.
+jsPsych Builder requires [Node.js](https://nodejs.org) >= 12 to be installed on your machine.
 
 ## Installation
 
