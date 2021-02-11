@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0](https://github.com/bjoluc/jspsych-builder/compare/v1.4.2...v2.0.0) (2021-02-11)
+
+
+### ⚠ BREAKING CHANGES
+
+* Node.js v10 is no longer supported.
+
+### Bug Fixes
+
+* Require Node.js >=v12 ([61e2fd3](https://github.com/bjoluc/jspsych-builder/commit/61e2fd3337080e474081c4790ced29df1dd0ee37))
+
 ### [1.4.2](https://github.com/bjoluc/jspsych-builder/compare/v1.4.1...v1.4.2) (2021-02-05)
 
 
