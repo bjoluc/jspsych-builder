@@ -9,7 +9,7 @@
     "jatos": "npm run jspsych -- jatos"
   },
   "dependencies": {
-    "jspsych": "github:jspsych/jsPsych#v6.2.0"
+    "jspsych": "github:jspsych/jsPsych#v6.3.1"
   },
   "devDependencies": {
     "jspsych-builder": "^<%= builderVersion %>"
