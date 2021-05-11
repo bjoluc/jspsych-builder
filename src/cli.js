@@ -36,15 +36,6 @@ function addExperimentFileOption(yargs) {
       ' the "src" directory and without the ".js" suffix). ' +
       'Example: "my-experiment" resolves to "./src/my-experiment.js".',
   });
-  // TODO make autocompletion for subcommands work
-  // .completion("completion", "ignore this", (current, argv, done) => {
-  //   glob(`src/${current}*.js`, { nodir: true }, (err, matches) => {
-  //     if (err) {
-  //       done([]);
-  //     }
-  //     done(matches.map((path) => path.substring(4, path.length - 3)));
-  //   });
-  // })
 }
 
 const yargs = require("yargs")
@@ -150,6 +141,25 @@ const yargs = require("yargs")
       handleErrors(() => require("./commands").build(experimentFile, true)),
   })
 
-  .completion("completion", "Output a completion script for your .bashrc");
+  .completion(
+    "completion",
+    "Output a completion script for your .bashrc",
+    function (current, argv, completionFilter, done) {
+      if (argv._.some((arg) => ["run", "build", "jatos"].includes(arg))) {
+        // Add suggestions for experiment files to the default completions
+        completionFilter((err, defaultCompletions) => {
+          done([
+            ...defaultCompletions.filter((completion) => completion !== "--version"),
+            ...require("glob")
+              .sync(`src/${current}*.js`, { nodir: true })
+              .map((path) => path.substring(4, path.length - 3)),
+          ]);
+        });
+      } else {
+        // Use the default completions
+        completionFilter();
+      }
+    }
+  );
 
 module.exports.yargs = yargs;
