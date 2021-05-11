@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.1.0](https://github.com/bjoluc/jspsych-builder/compare/v2.0.0...v2.1.0) (2021-05-11)
+
+
+### Features
+
+* **CLI:** Implement shell completion for the [experiment-file] option ([6f64ac0](https://github.com/bjoluc/jspsych-builder/commit/6f64ac06fb7a6f720a399fd32d9e8debb4d4a65e))
+
 ## [2.0.0](https://github.com/bjoluc/jspsych-builder/compare/v1.4.2...v2.0.0) (2021-02-11)
 
 
