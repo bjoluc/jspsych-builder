@@ -59,7 +59,7 @@
     "jest-docblock": "^26.0.0",
     "listr": "^0.14.3",
     "listr-silent-renderer": "1.1.1",
-    "lodash": "4.17.20",
+    "lodash": "4.17.21",
     "mini-css-extract-plugin": "1.3.6",
     "regenerator-runtime": "^0.13.7",
     "resolve-cwd": "^3.0.0",
