@@ -2,6 +2,9 @@ name: build
 
 on: [push, pull_request]
 
+env:
+  HUSKY: 0
+
 jobs:
   test:
     name: Test
