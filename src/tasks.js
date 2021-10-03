@@ -179,6 +179,7 @@ module.exports.copyAssets = copyAssets;
 
 // Bundle javascript with webpack, transpile it with babel
 const getWebpackConfig = (ctx) => {
+  /** @type {import("webpack").Configuration} */
   const config = {
     entry: builderAssetsDir + "/app.js",
     output: {
@@ -241,6 +242,11 @@ const getWebpackConfig = (ctx) => {
       maxAssetSize: 512000,
     },
     mode: ctx.isProduction ? "production" : "development",
+    stats: {
+      all: false,
+      errors: true,
+      warnings: true,
+    },
   };
 
   if (ctx.isProduction) {
@@ -278,22 +284,18 @@ const webpackDevServer = {
   task: (ctx) => {
     const compiler = webpack(getWebpackConfig(ctx));
 
-    new WebpackDevServer(compiler, {
-      contentBase: ctx.dist,
-      publicPath: "http://localhost:3000/",
-      liveReload: true,
-      hot: true,
-      injectClient: true,
-      stats: {
-        all: false,
-        errors: true,
-        warnings: true,
+    new WebpackDevServer(
+      {
+        static: {
+          directory: ctx.dist,
+        },
+        devMiddleware: {
+          publicPath: "http://localhost:3000/",
+        },
+        port: 3000,
       },
-    }).listen(3000, "localhost", (err) => {
-      if (err) {
-        console.error(err);
-      }
-    });
+      compiler
+    ).start();
   },
 };
 
