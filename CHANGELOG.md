@@ -3,6 +3,32 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.0](https://github.com/bjoluc/jspsych-builder/compare/v2.1.0...v3.0.0) (2021-10-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* **CLI:** The `jspsych jatos` command is no longer supported. Please use `jspsych build
+--jatos` instead.
+* Instead of a `createTimeline` function, experiment files are now expected to
+export an async `run` function that initializes jsPsych and runs the experiment.
+Please refer to the [experiment template file](assets/template/src/experiment.tmpl.js)
+for an example. Furthermore, jsPsych Builder no longer handles named exports other than `run`,
+and the jsPsych style sheet is not automatically imported anymore.
+* **Dependencies:** The minimum supported Node.js version is now v14
+
+### Features
+
+* **CLI:** Remove `jspsych jatos` alias ([6f778e2](https://github.com/bjoluc/jspsych-builder/commit/6f778e22f93c8bb2d9d050cd977682547a3429f9))
+* **CLI:** Slim down `jspsych run` console output ([7231cdf](https://github.com/bjoluc/jspsych-builder/commit/7231cdfc8ab378b1e34eab604da243a57770f99d))
+* **Development mode:** Show fullscreen overlays for errors/warnings ([974cfa5](https://github.com/bjoluc/jspsych-builder/commit/974cfa58cba2ec2c5af4deabcc0fe96ebc0443f3))
+* Support jsPsych v7 ([ba8725e](https://github.com/bjoluc/jspsych-builder/commit/ba8725e795567da7701cd9733f14a58a8e49abf8))
+
+
+### Miscellaneous Chores
+
+* **Dependencies:** Update dependencies ([829f95f](https://github.com/bjoluc/jspsych-builder/commit/829f95fe6fba27a3dfded3455feca2994aa3870c))
+
 ## [2.1.0](https://github.com/bjoluc/jspsych-builder/compare/v2.0.0...v2.1.0) (2021-05-11)
 
 
