@@ -47,6 +47,8 @@ module.exports.run = async (experiment) => {
   };
 
   await new Listr([tasks.build, tasks.webpackDevServer]).run(ctx);
+  console.log(ctx.message);
+
   let watcher = ctx.assetWatcher;
   const experimentFile = ctx.absoluteExperimentFilePath;
 

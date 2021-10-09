@@ -278,10 +278,15 @@ const webpackBuild = {
 
 const webpackDevServer = {
   title: "Starting development server",
-  task: (ctx) => {
-    const compiler = webpack(getWebpackConfig(ctx));
+  task: async (ctx) => {
+    const compiler = webpack({
+      ...getWebpackConfig(ctx),
+      infrastructureLogging: {
+        level: "error",
+      },
+    });
 
-    new WebpackDevServer(
+    const devServer = new WebpackDevServer(
       {
         static: {
           directory: ctx.dist,
@@ -295,7 +300,12 @@ const webpackDevServer = {
         },
       },
       compiler
-    ).start();
+    );
+    await devServer.start();
+
+    ctx.message = `Project is running at ${chalk.green.bold(
+      `http://localhost:${devServer.server.address().port}/`
+    )}`;
   },
 };
 
