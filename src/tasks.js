@@ -290,6 +290,9 @@ const webpackDevServer = {
           publicPath: "http://localhost:3000/",
         },
         port: 3000,
+        client: {
+          overlay: true,
+        },
       },
       compiler
     ).start();
