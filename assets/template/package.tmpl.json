@@ -9,10 +9,12 @@
     "jatos": "npm run jspsych -- jatos"
   },
   "dependencies": {
-    "jspsych": "github:jspsych/jsPsych#v6.3.1"
+    "jspsych": "^7.0.0",
+    "@jspsych/plugin-html-keyboard-response": "^1.0.0",
+    "@jspsych/plugin-fullscreen": "^1.0.0"
   },
   "devDependencies": {
     "jspsych-builder": "^<%= builderVersion %>"
   },
-  "browserslist": ["last 2 versions", "ie >= 9", "ios >= 7"]
+  "browserslist": ">0.25%, not dead"
 }

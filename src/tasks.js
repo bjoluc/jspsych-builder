@@ -192,9 +192,6 @@ const getWebpackConfig = (ctx) => {
       alias: {
         // Set the current experiment file as an alias so it can be imported in app.js
         JsPsychBuilderCurrentExperiment: ctx.absoluteExperimentFilePath,
-        // Set jspsych.css and jspsych as aliases so they can be imported in app.js
-        JsPsychCss: resolveCwd("jspsych/css/jspsych.css"),
-        JsPsychJs: resolveCwd("jspsych"),
       },
     },
     resolveLoader: {

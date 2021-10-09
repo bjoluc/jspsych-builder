@@ -5,45 +5,55 @@
  *
  * The following lines specify which media directories will be packaged and preloaded by jsPsych.
  * Modify them to arbitrary paths (or comma-separated lists of paths) within the `media` directory,
- * or delete them.
+ * or just delete them.
  * @imageDir images
  * @audioDir audio
  * @videoDir video
  */
 
-// You can import the custom stylesheets you use (.scss or .css).
+// You can import stylesheets (.scss or .css).
 import "../styles/main.scss";
 
-// jsPsych plugins
-import "jspsych/plugins/jspsych-html-keyboard-response";
-import "jspsych/plugins/jspsych-fullscreen";
+import { initJsPsych } from "jspsych";
+
+import HtmlKeyboardResponsePlugin from "@jspsych/plugin-html-keyboard-response";
+import FullscreenPlugin from "@jspsych/plugin-fullscreen";
 
 /**
- * This is where you define your jsPsych timeline.
+ * This method will be executed by jsPsych Builder and is expected to run the jsPsych experiment
  *
- * @param input A custom object that can be specified via the JATOS web interface ("JSON study
- *              input").
+ * @param {object} options - Options provided by jsPsych Builder
+ *
+ * @param {{preload_images: string[]; preload_audio: string[]; preload_video: string[];}}
+ *   options.initOptions - An options object to be passed to the initJsPsych() method
+ *
+ * @param {any} [options.input] - A custom object that can be specified via the JATOS web interface
+ * ("JSON study input").
+ *
+ * @param {"development"|"production"|"jatos"} options.environment - The context in which the
+ * experiment is run: `development` for `jspsych run`, `production` for `jspsych build`, and "jatos"
+ * if served by JATOS
  */
-export function createTimeline(input = {}) {
-  let timeline = [];
+export async function run({ initOptions, input = {}, environment }) {
+  const jsPsych = initJsPsych({ ...initOptions });
+
+  const timeline = [];
 
   // Welcome screen
   timeline.push({
-    type: "html-keyboard-response",
+    type: HtmlKeyboardResponsePlugin,
     stimulus: "<p>Welcome to <%= title %>!<p/>",
   });
 
   // Switch to fullscreen
   timeline.push({
-    type: "fullscreen",
+    type: FullscreenPlugin,
     fullscreen_mode: true,
   });
 
-  return timeline;
+  await jsPsych.run(timeline);
+
+  // Return the jsPsych instance so jsPsych Builder can access the experiment results (remove this
+  // if you handle results yourself, be it here or in `on_finish()`)
+  return jsPsych;
 }
-
-// Whatever you `export` from this file will be passed to `jsPsych.init()` (except for `timeline`,
-// which is determined using `createTimeline()`)
-
-// Note: `preload_images`, `preload_audio`, and `preload_video` will be set automatically if you
-// don't export them.
