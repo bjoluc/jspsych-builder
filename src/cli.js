@@ -131,16 +131,6 @@ const yargs = require("yargs")
       handleErrors(() => require("./commands").build(experimentFile, jatos)),
   })
 
-  .command({
-    command: "jatos [experiment-file]",
-    desc: "Alias for jspsych build --jatos [experiment-file]",
-    builder: (yargs) => {
-      addExperimentFileOption(yargs);
-    },
-    handler: ({ experimentFile }) =>
-      handleErrors(() => require("./commands").build(experimentFile, true)),
-  })
-
   .completion(
     "completion",
     "Output a completion script for your .bashrc",

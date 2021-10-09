@@ -90,10 +90,6 @@ function execute(...args) {
     await execute(cmd, ["build", "--jatos", "my-experiment"]);
     checkForBuiltPackage("my-experiment_0.1.0.jzip");
 
-    logTaskHeader("jspsych jatos");
-    await execute(cmd, ["jatos", "my-experiment"]);
-    checkForBuiltPackage("my-experiment_0.1.0.jzip");
-
     console.log("\nStory test passed");
   } catch (err) {
     console.error(err);
