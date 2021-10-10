@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.0.0](https://github.com/bjoluc/jspsych-builder/compare/v3.0.0...v4.0.0) (2021-10-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* The `initOptions` argument to the `run()` function has been replaced by
+`assetPaths`, since preloading is no longer supported via init options since jsPsych v6.3.0.
+Please refer to the [experiment file template](assets/template/src/experiment.tmpl.js) for
+an up-to-date usage example.
+
+### Bug Fixes
+
+* Replace `initOptions` `run()` argument by `assetPaths` ([78a8687](https://github.com/bjoluc/jspsych-builder/commit/78a8687b42d2883f284244b1d2e0a0acb3117d6f))
+
 ## [3.0.0](https://github.com/bjoluc/jspsych-builder/compare/v2.1.0...v3.0.0) (2021-10-09)
 
 
