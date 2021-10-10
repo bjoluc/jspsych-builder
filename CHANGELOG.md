@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+### [4.0.1](https://github.com/bjoluc/jspsych-builder/compare/v4.0.0...v4.0.1) (2021-10-10)
+
+
+### Bug Fixes
+
+* Fix asset paths compilation ([03499f9](https://github.com/bjoluc/jspsych-builder/commit/03499f9bac7b5ca391ae1101d126a8208bd02f8d))
+
 ## [4.0.0](https://github.com/bjoluc/jspsych-builder/compare/v3.0.0...v4.0.0) (2021-10-10)
 
 
