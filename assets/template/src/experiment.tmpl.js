@@ -9,6 +9,7 @@
  * @imageDir images
  * @audioDir audio
  * @videoDir video
+ * @miscDir misc
  */
 
 // You can import stylesheets (.scss or .css).
@@ -16,21 +17,30 @@ import "../styles/main.scss";
 
 import { initJsPsych } from "jspsych";
 
-import HtmlKeyboardResponsePlugin from "@jspsych/plugin-html-keyboard-response";
 import FullscreenPlugin from "@jspsych/plugin-fullscreen";
+import HtmlKeyboardResponsePlugin from "@jspsych/plugin-html-keyboard-response";
+import PreloadPlugin from "@jspsych/plugin-preload";
 
 /**
  * This method will be executed by jsPsych Builder and is expected to run the jsPsych experiment
  *
  * @param {object} options Options provided by jsPsych Builder
- * @param {{preload_images: string[]; preload_audio: string[]; preload_video: string[];}} options.initOptions An options object to be passed to the initJsPsych() method
  * @param {any} [options.input] A custom object that can be specified via the JATOS web interface ("JSON study input").
  * @param {"development"|"production"|"jatos"} options.environment The context in which the experiment is run: `development` for `jspsych run`, `production` for `jspsych build`, and "jatos" if served by JATOS
+ * @param {{images: string[]; audio: string[]; video: string[];, misc: string[];}} options.assetPaths An object with lists of file paths for the respective `@...Dir` pragmas
  */
-export async function run({ initOptions, input = {}, environment }) {
-  const jsPsych = initJsPsych({ ...initOptions });
+export async function run({ assetPaths, input = {}, environment }) {
+  const jsPsych = initJsPsych();
 
   const timeline = [];
+
+  // Preload assets
+  timeline.push({
+    type: PreloadPlugin,
+    images: assetPaths.images,
+    audio: assetPaths.audio,
+    video: assetPaths.video,
+  });
 
   // Welcome screen
   timeline.push({

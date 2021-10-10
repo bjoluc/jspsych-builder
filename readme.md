@@ -101,15 +101,9 @@ Feel free to modify these, but make sure to keep the required `title`, `descript
 
 ### Media
 
-The optional `@imagesDir`, `@audioDir`, and `@videoDir` pragmas have a special functionality.
+The optional `@imagesDir`, `@audioDir`, `@videoDir`, and `@miscDir` pragmas have a special functionality:
 You can specify a directory path (or a comma-separated list of paths) within the `media` directory and jsPsych Builder will recursively include all their contents in the build.
-Additionally, the paths of all the included files will be passed to `jsPsych`'s `preload_images`, `preload_audio`, and `preload_video` options, respectively.
-You can override the paths passed to [`jsPsych.init()`](https://www.jspsych.org/core_library/jspsych-core/#jspsychinit) by `export`ing the respective `preload_` options yourself from your experiment file.
-
-There may also be cases in which you want to include files that do not belong to one of the three categories above.
-Therefore, jsPsych Builder also supports a `@miscDir` pragma that serves the sole purpose of adding additional directories to the build archive.
-Again, you can specify one or multiple directory paths within the media directory.
-Note that the contents of the directories specified in `@miscDir` will not be preloaded by jsPsych.
+Additionally, the paths of all the included files will be passed to your `run` function as an `assetPaths` argument, in case you need to preload them (e.g. using the [preload plugin](https://www.jspsych.org/latest/plugins/preload/)).
 
 ### Styles
 

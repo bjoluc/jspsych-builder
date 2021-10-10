@@ -79,6 +79,7 @@
     "@commitlint/config-conventional": "^13.2.0",
     "@jspsych/plugin-fullscreen": "^1.0.0",
     "@jspsych/plugin-html-keyboard-response": "^1.0.0",
+    "@jspsych/plugin-preload": "^1.0.0",
     "axios": "^0.22.0",
     "commitizen": "^4.2.4",
     "conventional-changelog-conventionalcommits": "^4.6.1",

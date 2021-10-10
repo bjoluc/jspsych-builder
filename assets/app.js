@@ -7,18 +7,11 @@ import { run } from "JsPsychBuilderCurrentExperiment"; // webpack alias for the 
 
 const { assetPaths } = JSPSYCH_BUILDER_CONFIG; // Injected by webpack
 
-// Create common jsPsych configuration
-const initOptions = {
-  preload_images: assetPaths.images,
-  preload_audio: assetPaths.audio,
-  preload_video: assetPaths.video,
-};
-
 if (typeof jatos === "undefined") {
   // Experiment is run locally
   run({
-    initOptions,
     environment: process.env.NODE_ENV === "production" ? "production" : "development",
+    assetPaths,
   }).then((jsPsych) => {
     if (jsPsych) {
       jsPsych.data.displayData();
@@ -28,9 +21,9 @@ if (typeof jatos === "undefined") {
   // Experiment is served by JATOS
   jatos.onLoad(async () => {
     const jsPsych = await run({
-      initOptions,
-      environment: "jatos",
       input: jatos.studyJsonInput,
+      environment: "jatos",
+      assetPaths,
     });
 
     if (jsPsych) {
