@@ -39,46 +39,36 @@ exports.getDifferingKeys = (a, b) => {
  * Given the docblock pragmas from the experiment file, extracts the specified image, audio, and
  * video directories and returns an object containing the respective paths.
  */
-exports.getAssetDirectories = (pragmas) => {
-  const assetDirectories = {};
-
-  [
-    ["images", pragmas.imageDir],
-    ["audio", pragmas.audioDir],
-    ["video", pragmas.videoDir],
-    ["misc", pragmas.miscDir],
-  ].map(([assetType, assetDirsString]) => {
-    assetDirectories[assetType] =
-      typeof assetDirsString == "undefined"
-        ? []
-        : assetDirsString.split(",").map((dir) => "media/" + dir);
-  });
-
-  return assetDirectories;
-};
+exports.getAssetDirectories = (pragmas) =>
+  Object.fromEntries(
+    [
+      ["images", pragmas.imageDir],
+      ["audio", pragmas.audioDir],
+      ["video", pragmas.videoDir],
+      ["misc", pragmas.miscDir],
+    ].map(([assetType, assetDirsString]) => [
+      assetType,
+      assetDirsString ? assetDirsString.split(",").map((dir) => "media/" + dir) : [],
+    ])
+  );
 
 /**
  * Given the object returned by `getAssetDirectories()`, reads the specified directories recursively
  * and returns an object containing the respective file paths.
  */
 exports.getAssetPaths = async (assetDirectories) => {
-  const resolvePaths = async (directories) => {
-    const paths = [];
-    await Promise.all(
-      directories.map(async (dir) => {
-        paths.concat(await glob(dir + "/**/*", { nodir: true }));
-      })
-    );
-    return paths;
-  };
+  const resolvePaths = async (directories) =>
+    typeof directories === "undefined"
+      ? []
+      : [].concat(
+          ...(await Promise.all(directories.map((dir) => glob(dir + "/**/*", { nodir: true }))))
+        );
 
-  const assetPaths = {};
-  await Promise.all(
-    Object.entries(assetDirectories).map(async ([assetType, assetDirs]) => {
-      assetPaths[assetType] = typeof assetDirs == "undefined" ? [] : await resolvePaths(assetDirs);
-    })
+  return Object.fromEntries(
+    await Promise.all(
+      Object.entries(assetDirectories).map(async ([type, dirs]) => [type, await resolvePaths(dirs)])
+    )
   );
-  return assetPaths;
 };
 
 exports.getJatosStudyMetadata = (slug, title, description, version) => {

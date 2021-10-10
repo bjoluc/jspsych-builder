@@ -123,7 +123,7 @@ const prepareContext = {
     ctx.dist = path.resolve(ctx.relativeDistPath);
 
     ctx.assetDirs = getAssetDirectories(ctx.meta);
-    ctx.assetDirsList = new Array().concat(...Object.values(ctx.assetDirs));
+    ctx.assetDirsList = [].concat(...Object.values(ctx.assetDirs));
     ctx.assetDirGlobs = ctx.assetDirsList.map((dir) => dir + "/**/*");
     ctx.assetPaths = await getAssetPaths(ctx.assetDirs);
   },
