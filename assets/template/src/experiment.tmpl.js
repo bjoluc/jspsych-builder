@@ -22,17 +22,10 @@ import FullscreenPlugin from "@jspsych/plugin-fullscreen";
 /**
  * This method will be executed by jsPsych Builder and is expected to run the jsPsych experiment
  *
- * @param {object} options - Options provided by jsPsych Builder
- *
- * @param {{preload_images: string[]; preload_audio: string[]; preload_video: string[];}}
- *   options.initOptions - An options object to be passed to the initJsPsych() method
- *
- * @param {any} [options.input] - A custom object that can be specified via the JATOS web interface
- * ("JSON study input").
- *
- * @param {"development"|"production"|"jatos"} options.environment - The context in which the
- * experiment is run: `development` for `jspsych run`, `production` for `jspsych build`, and "jatos"
- * if served by JATOS
+ * @param {object} options Options provided by jsPsych Builder
+ * @param {{preload_images: string[]; preload_audio: string[]; preload_video: string[];}} options.initOptions An options object to be passed to the initJsPsych() method
+ * @param {any} [options.input] A custom object that can be specified via the JATOS web interface ("JSON study input").
+ * @param {"development"|"production"|"jatos"} options.environment The context in which the experiment is run: `development` for `jspsych run`, `production` for `jspsych build`, and "jatos" if served by JATOS
  */
 export async function run({ initOptions, input = {}, environment }) {
   const jsPsych = initJsPsych({ ...initOptions });
