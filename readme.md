@@ -21,7 +21,7 @@ Via a CDN, via standalone scripts, or via NPM (ES6).
 The latter option, while very convenient, is the hardest to manually set up.
 jsPsych Builder solves this by internally configuring common development tools (webpack, Babel, etc.) and exposing them via a simple CLI. Most notably, it:
 * sets up the HTML markup
-* provides a development mode with automated browser-refreshing (using webpack-dev-server)
+* provides a development mode with automated browser refreshing (using webpack-dev-server)
 * provides [SASS](https://sass-lang.com/) support
 * helps with media preloading for custom plugins (by compiling lists of file paths to be preloaded)
 * transpiles, bundles, and minifies scripts to guarantee wide browser compatibility and short loading times (using webpack and Babel)
@@ -119,4 +119,4 @@ If you want to serve your experiment using [JATOS](https://www.jatos.org/), run 
 
 ## Usage of the `jspsych` command
 
-A detailed list of sub-commands and their respective options can be displayed by running `jspsych` without any options, or `jspsych --help` with the name of a sub-command.
+A detailed list of sub commands and their respective options can be displayed by running `jspsych` without any options, or `jspsych --help` with the name of a sub command.
