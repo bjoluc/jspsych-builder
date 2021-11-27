@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.1.0](https://github.com/bjoluc/jspsych-builder/compare/v4.0.1...v4.1.0) (2021-11-27)
+
+
+### Features
+
+* Add TypeScript and React support ([3668350](https://github.com/bjoluc/jspsych-builder/commit/36683504a34ab470d90bbd7570ead67a1e598d7c)), closes [#10](https://github.com/bjoluc/jspsych-builder/issues/10)
+
+
+### Bug Fixes
+
+* **Template:** Fix `jatos` script in `package.json` ([1a0db16](https://github.com/bjoluc/jspsych-builder/commit/1a0db16857ce8b076d7dd186334799d267d21d9e))
+* **Template:** Set `private` flag in `package.json` ([533fa1a](https://github.com/bjoluc/jspsych-builder/commit/533fa1a52b8c32501bd1e2aaecb72a1ab1f18c24))
+
 ### [4.0.1](https://github.com/bjoluc/jspsych-builder/compare/v4.0.0...v4.0.1) (2021-10-10)
 
 
