@@ -10,7 +10,7 @@ import path from "path";
 import resolveCwd from "resolve-cwd";
 import Listr from "listr";
 import slugify from "slugify";
-import execa from "execa";
+import { execa } from "execa";
 import { URL } from "url";
 
 import gulpHtmlReplace from "gulp-html-replace";

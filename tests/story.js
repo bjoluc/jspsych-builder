@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import shell from "shelljs";
-import execa from "execa";
+import { execa } from "execa";
 import delay from "delay";
 import axios from "axios";
 import { strict as assert } from "assert";

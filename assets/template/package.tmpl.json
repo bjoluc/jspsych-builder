@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "jspsych": "^7.0.0",
-    "@jspsych/plugin-fullscreen": "^1.0.0",
+    "@jspsych/plugin-fullscreen": "^1.0.1",
     "@jspsych/plugin-html-keyboard-response": "^1.0.0",
     "@jspsych/plugin-preload": "^1.0.0"
   },
