@@ -1,7 +1,5 @@
 {
-  "name": "<%= packageName %>",
-  "version": "<%= packageVersion %>",
-  "description": "<%= description %>",
+  "private": true,
   "scripts": {
     "jspsych": "jspsych -e <%= experiment %>",
     "start": "npm run jspsych -- run",
