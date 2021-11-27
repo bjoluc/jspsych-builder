@@ -1,18 +1,20 @@
 "use strict";
 
-const fs = require("fs");
-var glob = require("glob-promise");
-const { v4: uuid } = require("uuid");
-const { extract, parse } = require("jest-docblock");
-const { diff } = require("deep-diff");
+import { readFileSync } from "fs";
+import glob from "glob-promise";
+import { v4 as uuid } from "uuid";
+import { extract, parse } from "jest-docblock";
+import deepDiff from "deep-diff";
+
+const { diff } = deepDiff;
 
 /**
  * Parses and returns the docblock pragma data from a specified file
  *
  * @param {string} filePath The path of the file to parse the data from
  */
-exports.loadDocblockPragmas = (filePath) => {
-  const fileContents = fs.readFileSync(filePath).toString();
+export const loadDocblockPragmas = (filePath) => {
+  const fileContents = readFileSync(filePath).toString();
   return parse(extract(fileContents));
 };
 
@@ -24,7 +26,7 @@ exports.loadDocblockPragmas = (filePath) => {
  * @param {Object} b
  * @returns {Set<string>}
  */
-exports.getDifferingKeys = (a, b) => {
+export const getDifferingKeys = (a, b) => {
   const changedKeys = new Set();
   const result = diff(a, b);
   if (result) {
@@ -39,7 +41,7 @@ exports.getDifferingKeys = (a, b) => {
  * Given the docblock pragmas from the experiment file, extracts the specified image, audio, and
  * video directories and returns an object containing the respective paths.
  */
-exports.getAssetDirectories = (pragmas) =>
+export const getAssetDirectories = (pragmas) =>
   Object.fromEntries(
     [
       ["images", pragmas.imageDir],
@@ -56,7 +58,7 @@ exports.getAssetDirectories = (pragmas) =>
  * Given the object returned by `getAssetDirectories()`, reads the specified directories recursively
  * and returns an object containing the respective file paths.
  */
-exports.getAssetPaths = async (assetDirectories) => {
+export const getAssetPaths = async (assetDirectories) => {
   const resolvePaths = async (directories) =>
     typeof directories === "undefined"
       ? []
@@ -71,7 +73,7 @@ exports.getAssetPaths = async (assetDirectories) => {
   );
 };
 
-exports.getJatosStudyMetadata = (slug, title, description, version) => {
+export const getJatosStudyMetadata = (slug, title, description, version) => {
   let study = {
     version: "3",
     data: {
@@ -112,3 +114,8 @@ exports.getJatosStudyMetadata = (slug, title, description, version) => {
   };
   return study;
 };
+
+/**
+ * https://stackoverflow.com/a/67552119
+ */
+export const requireJson = (path) => JSON.parse(readFileSync(new URL(path, import.meta.url)));

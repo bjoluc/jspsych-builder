@@ -1,12 +1,17 @@
 "use strict";
 
-const chalk = require("chalk");
+import chalk from "chalk";
+import glob from "glob";
+import yargs from "yargs";
+import { hideBin } from "yargs/helpers";
 
-const packageJson = require("../package.json");
-const interactions = require("./interactions");
+import * as commands from "./commands.js";
+import * as interactions from "./interactions.js";
+import { requireJson } from "./util.js";
 
-const defaultExperiment = "experiment";
-module.exports.defaultExperiment = defaultExperiment;
+const packageJson = requireJson("../package.json");
+
+export const defaultExperiment = "experiment";
 
 /**
  * Invokes the provided callback function, catches any error and prints it to the console.
@@ -38,7 +43,7 @@ function addExperimentFileOption(yargs) {
   });
 }
 
-const yargs = require("yargs")
+export const argv = yargs(hideBin(process.argv))
   // Common CLI options
   .usage("Usage: $0 <command> [options]")
 
@@ -94,7 +99,7 @@ const yargs = require("yargs")
         console.log();
       }
 
-      await handleErrors(() => require("./commands").init(experimentFile, userInput));
+      await handleErrors(() => commands.init(experimentFile, userInput));
     },
   })
 
@@ -108,7 +113,7 @@ const yargs = require("yargs")
     builder: (yargs) => {
       addExperimentFileOption(yargs);
     },
-    handler: ({ experimentFile }) => handleErrors(() => require("./commands").run(experimentFile)),
+    handler: ({ experimentFile }) => handleErrors(() => commands.run(experimentFile)),
   })
 
   .command({
@@ -128,7 +133,7 @@ const yargs = require("yargs")
       });
     },
     handler: ({ experimentFile, jatos }) =>
-      handleErrors(() => require("./commands").build(experimentFile, jatos)),
+      handleErrors(() => commands.build(experimentFile, jatos)),
   })
 
   .completion(
@@ -140,7 +145,7 @@ const yargs = require("yargs")
         completionFilter((err, defaultCompletions) => {
           done([
             ...defaultCompletions.filter((completion) => completion !== "--version"),
-            ...require("glob")
+            ...glob
               .sync(`src/${current}*.js`, { nodir: true })
               .map((path) => path.substring(4, path.length - 3)),
           ]);
@@ -150,6 +155,4 @@ const yargs = require("yargs")
         completionFilter();
       }
     }
-  );
-
-module.exports.yargs = yargs;
+  ).argv;

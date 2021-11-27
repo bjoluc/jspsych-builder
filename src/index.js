@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 "use strict";
 
-const updateNotifier = require("update-notifier");
-const cli = require("./cli");
-const pkg = require("../package.json");
+import updateNotifier from "update-notifier";
+import { argv } from "./cli.js";
+import { requireJson } from "./util.js";
+
+const pkg = requireJson("../package.json");
 
 // Notify about updates at the end
 updateNotifier({ pkg }).notify();
 
 // Run the program
-cli.yargs.argv;
+argv;

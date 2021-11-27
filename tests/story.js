@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-const shell = require("shelljs");
-const execa = require("execa");
-const delay = require("delay");
-const axios = require("axios").default;
-const assert = require("assert").strict;
+import shell from "shelljs";
+import execa from "execa";
+import delay from "delay";
+import axios from "axios";
+import { strict as assert } from "assert";
 
 function execute(...args) {
   const proc = execa(...args);

@@ -1,13 +1,11 @@
 "use strict";
 
-const chalk = require("chalk");
-const inquirer = require("inquirer");
+import chalk from "chalk";
+import inquirer from "inquirer";
 
-module.exports.init = async (defaults) => {
+export const init = async (defaults) => {
   console.log(chalk.bold("Welcome to jsPsych-builder!"));
-  console.log(
-    "This command will set up a new jsPsych experiment in the current directory."
-  );
+  console.log("This command will set up a new jsPsych experiment in the current directory.");
 
   let confirmResponse = await inquirer.prompt([
     {
@@ -40,8 +38,7 @@ module.exports.init = async (defaults) => {
     {
       type: "confirm",
       name: "confirmed",
-      message:
-        "jsPsych-builder is ready to initialize your experiment. Continue?",
+      message: "jsPsych-builder is ready to initialize your experiment. Continue?",
       default: true,
     },
   ]);

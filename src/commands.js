@@ -4,19 +4,20 @@
  * The commands module assembles the tasks from the task module and exports functions to run them.
  */
 
-const Listr = require("listr");
-const SilentRenderer = require("listr-silent-renderer");
-const chalk = require("chalk");
-const gulp = require("gulp");
-const cache = require("gulp-cached");
-const del = require("del");
-const path = require("path");
-const { intersection } = require("lodash");
+import Listr from "listr";
+import SilentRenderer from "listr-silent-renderer";
 
-const tasks = require("./tasks");
-const { loadDocblockPragmas, getDifferingKeys } = require("./util");
+import chalk from "chalk";
+import gulp from "gulp";
+import cache from "gulp-cached";
+import del from "del";
+import path from "path";
+import { intersection } from "lodash-es";
 
-module.exports.init = async (experiment, userInput) => {
+import * as tasks from "./tasks.js";
+import { loadDocblockPragmas, getDifferingKeys } from "./util.js";
+
+export const init = async (experiment, userInput) => {
   await new Listr([tasks.compileProjectTemplate, tasks.installDependencies]).run({
     experiment,
     userInput,
@@ -24,9 +25,8 @@ module.exports.init = async (experiment, userInput) => {
   console.log("\nDone! Now run " + chalk.bold("jspsych run") + " to start developing!");
 };
 
-module.exports.build = async (experiment, isForJatos = false) => {
-  const tasks = require("./tasks");
-  const runner = new Listr([tasks.build, tasks.package]);
+export const build = async (experiment, isForJatos = false) => {
+  const runner = new Listr([tasks.build, tasks.pack]);
 
   const ctx = {
     experiment,
@@ -38,7 +38,7 @@ module.exports.build = async (experiment, isForJatos = false) => {
   console.log(ctx.message);
 };
 
-module.exports.run = async (experiment) => {
+export const run = async (experiment) => {
   const ctx = {
     experiment,
     isProduction: false,

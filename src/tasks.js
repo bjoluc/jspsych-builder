@@ -1,39 +1,53 @@
 "use strict";
 
-const gulp = require("gulp");
-const loadGulpPlugins = require("gulp-load-plugins");
-const del = require("del");
-const webpack = require("webpack");
-const WebpackDevServer = require("webpack-dev-server");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const chalk = require("chalk");
-const path = require("path");
-const resolveCwd = require("resolve-cwd");
-const Listr = require("listr");
-const slugify = require("slugify");
-const execa = require("execa");
+import gulp from "gulp";
+import del from "del";
+import webpack from "webpack";
+import WebpackDevServer from "webpack-dev-server";
+import MiniCssExtractPlugin from "mini-css-extract-plugin";
+import chalk from "chalk";
+import path from "path";
+import resolveCwd from "resolve-cwd";
+import Listr from "listr";
+import slugify from "slugify";
+import execa from "execa";
+import { URL } from "url";
 
-const { promisify } = require("util");
-const pipeline = promisify(require("stream").pipeline);
+import gulpHtmlReplace from "gulp-html-replace";
+import gulpInject from "gulp-inject";
+import gulpRemoveEmptyLines from "gulp-remove-empty-lines";
+import gulpZip from "gulp-zip";
+import gulpTemplate from "gulp-template";
+import gulpRename from "gulp-rename";
+import gulpIf from "gulp-if";
+import gulpCached from "gulp-cached";
+import gulpFile from "gulp-file";
 
-const packageJson = require("../package.json");
-const {
+import babelPresetEnv from "@babel/preset-env";
+import babelPluginProposalClassProperties from "@babel/plugin-proposal-class-properties";
+import babelPluginTransformClasses from "@babel/plugin-transform-classes";
+
+import { promisify } from "util";
+import stream from "stream";
+const pipeline = promisify(stream.pipeline);
+
+import {
   loadDocblockPragmas,
   getAssetDirectories,
   getAssetPaths,
   getJatosStudyMetadata,
-} = require("./util");
-const { defaultExperiment } = require("./cli");
+  requireJson,
+} from "./util.js";
+import { defaultExperiment } from "./cli.js";
+
+const packageJson = requireJson("../package.json");
 
 // Global constants
-const builderDir = path.resolve(__dirname, "..");
+const builderDir = new URL("..", import.meta.url).pathname;
 const builderAssetsDir = builderDir + "/assets";
 const builderNodeModulesDir = builderDir + "/node_modules";
 
-// Load all Gulp plugins into one variable
-const plugins = loadGulpPlugins();
-
-module.exports.compileProjectTemplate = {
+export const compileProjectTemplate = {
   title: "Compiling project template",
   task: (ctx) => {
     const templateDir = builderAssetsDir + "/template";
@@ -59,16 +73,16 @@ module.exports.compileProjectTemplate = {
       // Compile template files
       pipeline(
         gulp.src([templateDir + "/package.tmpl.json"]),
-        plugins.template(templateData),
-        plugins.rename((path) => {
+        gulpTemplate(templateData),
+        gulpRename((path) => {
           path.basename = "package";
         }),
         gulp.dest(".")
       ),
       pipeline(
         gulp.src([templateDir + "/src/experiment.tmpl.js"]),
-        plugins.template(templateData),
-        plugins.rename((path) => {
+        gulpTemplate(templateData),
+        gulpRename((path) => {
           path.basename = experiment;
         }),
         gulp.dest("src/")
@@ -77,12 +91,12 @@ module.exports.compileProjectTemplate = {
   },
 };
 
-module.exports.installDependencies = {
+export const installDependencies = {
   title: "Installing dependencies",
   task: () => execa("npm", ["install"]),
 };
 
-const prepareContext = {
+export const prepareContext = {
   title: "Reading ",
   task: async (ctx, task) => {
     const experiment = ctx.experiment;
@@ -129,14 +143,12 @@ const prepareContext = {
   },
 };
 
-module.exports.prepareContext = prepareContext;
-
 const clean = {
   title: "Cleaning build directory",
   task: (ctx) => del(ctx.dist),
 };
 
-const copyAssets = {
+export const copyAssets = {
   title: "Copying assets",
   task: (ctx, task) => {
     if (ctx.assetDirGlobs.length === 0) {
@@ -147,7 +159,7 @@ const copyAssets = {
           gulp.src(ctx.assetDirGlobs, { base: "media" }),
 
           // For watching: Memorize the files and exclude asset files that did not change since the last copying
-          plugins.cached("assets", { optimizeMemory: true }),
+          gulpCached("assets", { optimizeMemory: true }),
 
           gulp.dest(ctx.dist + "/media")
         );
@@ -175,13 +187,11 @@ const copyAssets = {
   },
 };
 
-module.exports.copyAssets = copyAssets;
-
 // Bundle javascript with webpack, transpile it with babel
 const getWebpackConfig = (ctx) => {
   /** @type {import("webpack").Configuration} */
   const config = {
-    entry: builderAssetsDir + "/app.js",
+    entry: builderAssetsDir + "/app.cjs",
     output: {
       filename: "js/app.js",
       path: ctx.dist,
@@ -216,10 +226,10 @@ const getWebpackConfig = (ctx) => {
           use: {
             loader: "babel-loader",
             options: {
-              presets: [[require("@babel/preset-env"), { modules: "commonjs" }]],
+              presets: [[babelPresetEnv, { modules: "commonjs" }]],
               plugins: [
-                require("@babel/plugin-proposal-class-properties"),
-                [require("@babel/plugin-transform-classes"), { loose: true }],
+                babelPluginProposalClassProperties,
+                [babelPluginTransformClasses, { loose: true }],
               ],
             },
           },
@@ -276,7 +286,7 @@ const webpackBuild = {
     }),
 };
 
-const webpackDevServer = {
+export const webpackDevServer = {
   title: "Starting development server",
   task: async (ctx) => {
     const compiler = webpack({
@@ -309,9 +319,7 @@ const webpackDevServer = {
   },
 };
 
-module.exports.webpackDevServer = webpackDevServer;
-
-const html = {
+export const html = {
   title: "Building index.html",
   task: (ctx) => {
     let htmlReplacements = {
@@ -327,22 +335,20 @@ const html = {
 
     return pipeline(
       gulp.src(builderAssetsDir + "/index.html"),
-      plugins.htmlReplace(htmlReplacements),
-      plugins.inject(gulp.src(ctx.dist + "/css/**/*"), {
+      gulpHtmlReplace(htmlReplacements),
+      gulpInject(gulp.src(ctx.dist + "/css/**/*"), {
         addRootSlash: false,
         ignorePath: ctx.relativeDistPath,
         quiet: true,
       }),
-      plugins.removeEmptyLines({ removeComments: true }),
+      gulpRemoveEmptyLines({ removeComments: true }),
       gulp.dest(ctx.dist)
     );
   },
 };
 
-module.exports.html = html;
-
 // Composed build task
-module.exports.build = {
+export const build = {
   title: "Building ",
   task: (ctx, task) => {
     task.title += ctx.experiment;
@@ -351,7 +357,7 @@ module.exports.build = {
 };
 
 // Create a zip archive with the build – either plain or for JATOS
-module.exports.package = {
+export const pack = {
   title: "Packaging experiment",
   task: async (ctx) => {
     const { experiment, isForJatos, dist, meta } = ctx;
@@ -360,14 +366,14 @@ module.exports.package = {
 
     await pipeline(
       gulp.src(dist + "/**/*"),
-      plugins.rename((file) => {
+      gulpRename((file) => {
         file.dirname = experiment + "/" + file.dirname;
       }),
 
       // Optionally add a .jas file with JATOS metadata
-      plugins.if(
+      gulpIf(
         isForJatos,
-        plugins.file(
+        gulpFile(
           experiment + ".jas",
           JSON.stringify(
             getJatosStudyMetadata(experiment, meta.title, meta.description, meta.version)
@@ -375,7 +381,7 @@ module.exports.package = {
         )
       ),
 
-      plugins.zip(filename),
+      gulpZip(filename),
       gulp.dest("packaged")
     );
 
