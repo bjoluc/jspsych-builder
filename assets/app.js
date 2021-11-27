@@ -1,7 +1,7 @@
 "use strict";
 
-import "core-js/stable";
-import "regenerator-runtime/runtime";
+import "core-js/stable/index.js";
+import "regenerator-runtime/runtime.js";
 
 import { run } from "JsPsychBuilderCurrentExperiment"; // webpack alias for the main experiment file
 

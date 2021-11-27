@@ -146,8 +146,8 @@ export const argv = yargs(hideBin(process.argv))
           done([
             ...defaultCompletions.filter((completion) => completion !== "--version"),
             ...glob
-              .sync(`src/${current}*.js`, { nodir: true })
-              .map((path) => path.substring(4, path.length - 3)),
+              .sync(`src/${current}*.@(j|t)s?(x)`, { nodir: true })
+              .map((path) => path.substring(4, path.lastIndexOf("."))),
           ]);
         });
       } else {

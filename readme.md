@@ -25,6 +25,7 @@ jsPsych Builder solves this by internally configuring common development tools (
 * provides [SASS](https://sass-lang.com/) support
 * helps with media preloading for custom plugins (by compiling lists of file paths to be preloaded)
 * transpiles, bundles, and minifies scripts to guarantee wide browser compatibility and short loading times (using webpack and Babel)
+* provides TypeScript and React support – simply rename your files to `*.ts`, `*.tsx`, or `*.jsx`.
 * offers to bundle all the required files for deployment, yielding a zip archive
 * offers to package experiments for [JATOS](https://www.jatos.org/)
 

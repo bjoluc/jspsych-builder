@@ -23,10 +23,6 @@ import gulpIf from "gulp-if";
 import gulpCached from "gulp-cached";
 import gulpFile from "gulp-file";
 
-import babelPresetEnv from "@babel/preset-env";
-import babelPluginProposalClassProperties from "@babel/plugin-proposal-class-properties";
-import babelPluginTransformClasses from "@babel/plugin-transform-classes";
-
 import { promisify } from "util";
 import stream from "stream";
 const pipeline = promisify(stream.pipeline);
@@ -97,28 +93,33 @@ export const installDependencies = {
 };
 
 export const prepareContext = {
-  title: "Reading ",
+  title: "Reading experiment file",
   task: async (ctx, task) => {
     const experiment = ctx.experiment;
-    task.title += experiment + ".js";
 
-    const experimentFile = "./src/" + experiment + ".js";
-
-    // Resolve the experiment file
-    try {
-      ctx.absoluteExperimentFilePath = resolveCwd(experimentFile);
-    } catch (e) {
-      if (e.code === "MODULE_NOT_FOUND") {
-        e.message = `Experiment file ${chalk.bold(experimentFile)} does not exist.`;
-
-        if (experiment === defaultExperiment) {
-          e.message += ` Did you forget to provide the ${chalk.green(
-            "[experiment-file]"
-          )} argument?`;
-        }
-
-        throw e;
+    // Resolve experiment file
+    let experimentFile;
+    for (const suffix of ["", ".js", ".ts", ".jsx", ".tsx"]) {
+      const relativePath = "./src/" + experiment + suffix;
+      const absolutePath = resolveCwd.silent(relativePath);
+      if (absolutePath) {
+        experimentFile = relativePath;
+        ctx.absoluteExperimentFilePath = absolutePath;
       }
+    }
+
+    task.title = "Reading " + experimentFile;
+
+    if (!experimentFile) {
+      let message = `Experiment file ${chalk.bold(
+        experiment + ".js"
+      )} (or .ts, .jsx, .tsx) does not exist.`;
+
+      if (experiment === defaultExperiment) {
+        message += ` Did you forget to provide the ${chalk.green("[experiment-file]")} argument?`;
+      }
+
+      throw new Error(message);
     }
 
     ctx.meta = loadDocblockPragmas(experimentFile);
@@ -191,7 +192,7 @@ export const copyAssets = {
 const getWebpackConfig = (ctx) => {
   /** @type {import("webpack").Configuration} */
   const config = {
-    entry: builderAssetsDir + "/app.cjs",
+    entry: builderAssetsDir + "/app.js",
     output: {
       filename: "js/app.js",
       path: ctx.dist,
@@ -199,6 +200,7 @@ const getWebpackConfig = (ctx) => {
     resolve: {
       // Try cwd node_modules first, then jspsych-builder node_modules
       modules: ["node_modules", builderNodeModulesDir],
+      extensions: [".js", ".jsx", ".ts", ".tsx"],
       alias: {
         // Set the current experiment file as an alias so it can be imported in app.js
         JsPsychBuilderCurrentExperiment: ctx.absoluteExperimentFilePath,
@@ -208,9 +210,7 @@ const getWebpackConfig = (ctx) => {
       modules: ["node_modules", builderNodeModulesDir],
     },
     plugins: [
-      new MiniCssExtractPlugin({
-        filename: "css/[name].css",
-      }),
+      new MiniCssExtractPlugin({ filename: "css/[name].css" }),
       // Define a global constant with data for usage in app.js
       new webpack.DefinePlugin({
         JSPSYCH_BUILDER_CONFIG: JSON.stringify({
@@ -221,15 +221,16 @@ const getWebpackConfig = (ctx) => {
     module: {
       rules: [
         {
-          test: /.js$/,
+          test: /.(j|t)sx?$/,
           exclude: /node_modules(?![\\\/]jspsych)/,
           use: {
             loader: "babel-loader",
             options: {
-              presets: [[babelPresetEnv, { modules: "commonjs" }]],
+              presets: ["@babel/preset-env", "@babel/preset-typescript", "@babel/preset-react"],
               plugins: [
-                babelPluginProposalClassProperties,
-                [babelPluginTransformClasses, { loose: true }],
+                "@babel/plugin-proposal-class-properties",
+                ["@babel/plugin-transform-classes", { loose: true }],
+                "@babel/plugin-proposal-object-rest-spread",
               ],
             },
           },
