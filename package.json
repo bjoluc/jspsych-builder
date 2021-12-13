@@ -69,6 +69,7 @@
     "resolve-cwd": "^3.0.0",
     "sass": "^1.43.5",
     "sass-loader": "^12.3.0",
+    "slash": "^4.0.0",
     "slugify": "^1.6.3",
     "update-notifier": "^5.1.0",
     "uuid": "^8.3.2",
