@@ -8,10 +8,11 @@ import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import chalk from "chalk";
 import path from "path";
 import resolveCwd from "resolve-cwd";
+import slash from "slash";
 import Listr from "listr";
 import slugify from "slugify";
 import { execa } from "execa";
-import { URL } from "url";
+import { fileURLToPath } from "url";
 
 import gulpHtmlReplace from "gulp-html-replace";
 import gulpInject from "gulp-inject";
@@ -39,7 +40,9 @@ import { defaultExperiment } from "./cli.js";
 const packageJson = requireJson("../package.json");
 
 // Global constants
-const builderDir = new URL("..", import.meta.url).pathname;
+const builderDir = slash(path.resolve(fileURLToPath(import.meta.url), "../.."));
+console.log(import.meta.url);
+console.log(builderDir);
 const builderAssetsDir = builderDir + "/assets";
 const builderNodeModulesDir = builderDir + "/node_modules";
 
@@ -58,6 +61,8 @@ export const compileProjectTemplate = {
       packageVersion: "0.0.1",
       builderVersion: packageJson.version,
     };
+
+    console.log(templateDir + "/package.tmpl.json");
 
     return Promise.all([
       // Copy raw files
