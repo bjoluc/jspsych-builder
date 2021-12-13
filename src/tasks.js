@@ -11,7 +11,7 @@ import resolveCwd from "resolve-cwd";
 import Listr from "listr";
 import slugify from "slugify";
 import { execa } from "execa";
-import { URL } from "url";
+import url from "url";
 
 import gulpHtmlReplace from "gulp-html-replace";
 import gulpInject from "gulp-inject";
@@ -39,14 +39,14 @@ import { defaultExperiment } from "./cli.js";
 const packageJson = requireJson("../package.json");
 
 // Global constants
-const builderDir = new URL("..", import.meta.url).pathname;
-const builderAssetsDir = builderDir + "/assets";
-const builderNodeModulesDir = builderDir + "/node_modules";
+const builderDir = path.resolve(url.fileURLToPath(import.meta.url), "../..");
+const builderAssetsDir = path.resolve(builderDir, "assets");
+const builderNodeModulesDir = path.resolve(builderDir, "node_modules");
 
 export const compileProjectTemplate = {
   title: "Compiling project template",
   task: (ctx) => {
-    const templateDir = builderAssetsDir + "/template";
+    const templateDir = path.resolve(builderAssetsDir, "template");
     const experiment = ctx.experiment;
     const input = ctx.userInput;
 
