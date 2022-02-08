@@ -96,6 +96,7 @@ You will have to `npm install` and import plugins instead, similar to the [NPM v
 Experiment files need to export an asynchronous `run` function that initializes a JsPsych instance, runs the experiment with it, and optionally returns the JsPsych instance in the end.
 You can check the [experiment template file](assets/template/src/experiment.tmpl.js) for an example.
 If the `run` function returns the JsPsych instance, jsPsych Builder will display the results in the browser window at the end (or save them to JATOS when an experiment is served by JATOS).
+Remove the `return` statement from the `run` function if you don't want jsPsych Builder to handle result data.
 
 The top of the experiment file contains a special section ("docblock") with meta information ("pragmas") on your experiment.
 Feel free to modify these, but make sure to keep the required `title`, `description`, and `version` pragmas.
