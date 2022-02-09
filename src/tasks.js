@@ -5,6 +5,8 @@ import del from "del";
 import webpack from "webpack";
 import WebpackDevServer from "webpack-dev-server";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
+import HtmlWebpackPlugin from "html-webpack-plugin";
+import HtmlWebpackTagsPlugin from "html-webpack-tags-plugin";
 import chalk from "chalk";
 import path from "path";
 import resolveCwd from "resolve-cwd";
@@ -14,9 +16,6 @@ import slugify from "slugify";
 import { execa } from "execa";
 import { fileURLToPath } from "url";
 
-import gulpHtmlReplace from "gulp-html-replace";
-import gulpInject from "gulp-inject";
-import gulpRemoveEmptyLines from "gulp-remove-empty-lines";
 import gulpZip from "gulp-zip";
 import gulpTemplate from "gulp-template";
 import gulpRename from "gulp-rename";
@@ -195,8 +194,8 @@ const getWebpackConfig = (ctx) => {
   const config = {
     entry: builderAssetsDir + "/app.js",
     output: {
-      filename: "js/app.js",
       path: ctx.dist,
+      filename: "js/app.js",
     },
     resolve: {
       // Try cwd node_modules first, then jspsych-builder node_modules
@@ -217,6 +216,16 @@ const getWebpackConfig = (ctx) => {
         JSPSYCH_BUILDER_CONFIG: JSON.stringify({
           assetPaths: ctx.assetPaths,
         }),
+      }),
+      new HtmlWebpackPlugin({
+        title: ctx.meta.title + (ctx.isProduction ? "" : " (Development Build)"),
+        meta: {
+          "X-UA-Compatible": { "http-equiv": "X-UA-Compatible", content: "ie=edge" },
+          viewport: "width=device-width, initial-scale=1.0",
+        },
+      }),
+      new HtmlWebpackTagsPlugin({
+        tags: ctx.isForJatos ? [{ path: "/assets/javascripts/jatos.js", append: false }] : [],
       }),
     ],
     module: {
@@ -321,40 +330,12 @@ export const webpackDevServer = {
   },
 };
 
-export const html = {
-  title: "Building index.html",
-  task: (ctx) => {
-    let htmlReplacements = {
-      title: {
-        src: ctx.meta.title + (ctx.isProduction ? "" : " (Development Build)"),
-        tpl: "<title>%s</title>",
-      },
-    };
-
-    if (ctx.isForJatos) {
-      htmlReplacements.jatosjs = "/assets/javascripts/jatos.js";
-    }
-
-    return pipeline(
-      gulp.src(builderAssetsDir + "/index.html"),
-      gulpHtmlReplace(htmlReplacements),
-      gulpInject(gulp.src(ctx.dist + "/css/**/*"), {
-        addRootSlash: false,
-        ignorePath: ctx.relativeDistPath,
-        quiet: true,
-      }),
-      gulpRemoveEmptyLines({ removeComments: true }),
-      gulp.dest(ctx.dist)
-    );
-  },
-};
-
 // Composed build task
 export const build = {
   title: "Building ",
   task: (ctx, task) => {
     task.title += ctx.experiment;
-    return new Listr([prepareContext, clean, copyAssets, webpackBuild, html]);
+    return new Listr([prepareContext, clean, copyAssets, webpackBuild]);
   },
 };
 
