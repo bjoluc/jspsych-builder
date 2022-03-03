@@ -22,7 +22,7 @@ function execute(...args) {
     shell.mkdir("story");
     shell.cd("story");
 
-    const cmd = "../../src/index.js";
+    const cmd = "../../dist/index.js";
 
     const logTaskHeader = (name) => console.log(`\n=== Running '${name}' ===\n`);
 
