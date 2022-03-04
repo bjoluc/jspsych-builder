@@ -68,6 +68,13 @@ export const getWebpackConfig = (ctx: BuilderContext) => {
           },
         },
         {
+          test: /\.mdx?$/,
+          use: [
+            {loader: 'babel-loader', options: {}},
+            { loader: '@mdx-js/loader', options: {} }
+          ]
+        },
+        {
           test: /\.css$/,
           use: [{ loader: MiniCssExtractPlugin.loader }, "css-loader"],
         },
