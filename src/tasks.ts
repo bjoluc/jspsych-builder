@@ -11,9 +11,10 @@ import gulpIf from "gulp-if";
 import gulpRename from "gulp-rename";
 import gulpTemplate from "gulp-template";
 import gulpZip from "gulp-zip";
-import Listr, { ListrTask } from "listr";
+import { ListrTask } from "listr";
 import resolveCwd from "resolve-cwd";
-import webpack from "webpack";
+import { Observable } from "rxjs";
+import webpack, { Compiler } from "webpack";
 import WebpackDevServer from "webpack-dev-server";
 
 import {
@@ -46,7 +47,56 @@ export interface BuilderContext {
   isForJatos?: boolean;
   isProduction?: boolean;
 
+  compiler?: Compiler;
+  devServer?: WebpackDevServer;
   message?: string;
+}
+
+async function prepareContext(ctx: BuilderContext) {
+  const experiment = ctx.experiment;
+
+  // Resolve experiment file
+  let experimentFile;
+  for (const suffix of ["", ".js", ".ts", ".jsx", ".tsx"]) {
+    const relativePath = "./src/" + experiment + suffix;
+    const absolutePath = resolveCwd.silent(relativePath);
+    if (absolutePath) {
+      experimentFile = relativePath;
+      ctx.absoluteExperimentFilePath = absolutePath;
+    }
+  }
+
+  if (!experimentFile) {
+    let message = `Experiment file ${chalk.bold(
+      experiment + ".js"
+    )} (or .ts, .jsx, .tsx) does not exist.`;
+
+    if (experiment === defaultExperiment) {
+      message += ` Did you forget to provide the ${chalk.green("[experiment-file]")} argument?`;
+    }
+
+    throw new Error(message);
+  }
+
+  ctx.meta = loadDocblockPragmas(experimentFile);
+
+  for (let pragma of ["title", "description", "version"]) {
+    if (typeof ctx.meta[pragma] === "undefined") {
+      throw new Error(
+        `${chalk.bold(experimentFile)} does not specify a "${pragma}" pragma (like ${
+          chalk.blue(`@${pragma} `) + chalk.green(`My ${pragma}`)
+        }). Please add it and try again.`
+      );
+    }
+  }
+
+  ctx.relativeDistPath = ".jspsych-builder/" + experiment;
+  ctx.dist = path.resolve(ctx.relativeDistPath);
+
+  ctx.assetDirs = getAssetDirectories(ctx.meta);
+  ctx.assetDirsList = Object.values(ctx.assetDirs).flat();
+  ctx.assetDirGlobs = ctx.assetDirsList.map((dir) => dir + "/**/*");
+  ctx.assetPaths = await getAssetPaths(ctx.assetDirs);
 }
 
 export const compileProjectTemplate = {
@@ -96,75 +146,37 @@ export const installDependencies: ListrTask<BuilderContext> = {
   task: () => execa("npm", ["install"]),
 };
 
-export const prepareContext: ListrTask<BuilderContext> = {
-  title: "Reading experiment file",
-  task: async (ctx, task) => {
-    const experiment = ctx.experiment;
-
-    // Resolve experiment file
-    let experimentFile;
-    for (const suffix of ["", ".js", ".ts", ".jsx", ".tsx"]) {
-      const relativePath = "./src/" + experiment + suffix;
-      const absolutePath = resolveCwd.silent(relativePath);
-      if (absolutePath) {
-        experimentFile = relativePath;
-        ctx.absoluteExperimentFilePath = absolutePath;
-      }
-    }
-
-    task.title = "Reading " + experimentFile;
-
-    if (!experimentFile) {
-      let message = `Experiment file ${chalk.bold(
-        experiment + ".js"
-      )} (or .ts, .jsx, .tsx) does not exist.`;
-
-      if (experiment === defaultExperiment) {
-        message += ` Did you forget to provide the ${chalk.green("[experiment-file]")} argument?`;
-      }
-
-      throw new Error(message);
-    }
-
-    ctx.meta = loadDocblockPragmas(experimentFile);
-
-    for (let pragma of ["title", "description", "version"]) {
-      if (typeof ctx.meta[pragma] === "undefined") {
-        throw new Error(
-          `${chalk.bold(experimentFile)} does not specify a "${pragma}" pragma (like ${
-            chalk.blue(`@${pragma} `) + chalk.green(`My ${pragma}`)
-          }). Please add it and try again.`
-        );
-      }
-    }
-
-    ctx.relativeDistPath = ".jspsych-builder/" + experiment;
-    ctx.dist = path.resolve(ctx.relativeDistPath);
-
-    ctx.assetDirs = getAssetDirectories(ctx.meta);
-    ctx.assetDirsList = Object.values(ctx.assetDirs).flat();
-    ctx.assetDirGlobs = ctx.assetDirsList.map((dir) => dir + "/**/*");
-    ctx.assetPaths = await getAssetPaths(ctx.assetDirs);
-  },
-};
-
-const webpackBuild: ListrTask<BuilderContext> = {
-  title: "Building scripts and styles",
+export const build: ListrTask<BuilderContext> = {
+  title: "Building",
   task: (ctx) =>
-    new Promise<void>((resolve, reject) => {
-      webpack(getWebpackConfig(ctx), (err, stats) => {
-        if (err) {
-          reject(err);
-          return;
+    new Observable((observer) => {
+      observer.next("reading source file");
+      prepareContext(ctx).then(() => {
+        const compiler = webpack(getWebpackConfig(ctx));
+        ctx.compiler = compiler;
+
+        if (process.stdout.isTTY) {
+          new webpack.ProgressPlugin((percentage, message) => {
+            observer.next(`${Math.round(percentage * 100)}% ${message}`);
+          }).apply(compiler);
+        } else {
+          observer.next("building");
         }
-        if (stats?.hasErrors()) {
-          reject(new Error(stats.toString({ all: false, errors: true })));
-          return;
-        }
-        if (stats?.hasWarnings()) {
-          console.log(stats.toString({ all: false, warnings: true }));
-        }
-        resolve();
+
+        compiler.run((err, stats) => {
+          if (err) {
+            observer.error(err);
+            return;
+          }
+          if (stats?.hasErrors()) {
+            observer.error(new Error(stats.toString({ all: false, errors: true })));
+            return;
+          }
+          if (stats?.hasWarnings()) {
+            console.log(stats.toString({ all: false, warnings: true }));
+          }
+          observer.complete();
+        });
       });
     }),
 };
@@ -172,13 +184,6 @@ const webpackBuild: ListrTask<BuilderContext> = {
 export const webpackDevServer: ListrTask<BuilderContext> = {
   title: "Starting development server",
   task: async (ctx) => {
-    const compiler = webpack({
-      ...getWebpackConfig(ctx),
-      infrastructureLogging: {
-        level: "error",
-      },
-    });
-
     const devServer = new WebpackDevServer(
       {
         static: {
@@ -186,15 +191,15 @@ export const webpackDevServer: ListrTask<BuilderContext> = {
         },
         devMiddleware: {
           publicPath: "http://localhost:3000/",
-          // writeToDisk: true, // TODO remove the need for this
         },
         port: 3000,
         client: {
           overlay: true,
         },
       },
-      compiler
+      ctx.compiler!
     );
+    ctx.devServer = devServer;
     await devServer.start();
 
     const addressInfo = devServer.server?.address();
@@ -203,15 +208,6 @@ export const webpackDevServer: ListrTask<BuilderContext> = {
         `http://localhost:${addressInfo.port}/`
       )}`;
     }
-  },
-};
-
-// Composed build task
-export const build: ListrTask<BuilderContext> = {
-  title: "Building ",
-  task: (ctx, task) => {
-    task.title += ctx.experiment;
-    return new Listr([prepareContext, webpackBuild]);
   },
 };
 

@@ -117,6 +117,9 @@ export const getWebpackConfig = (ctx: BuilderContext) => {
       errors: true,
       warnings: true,
     },
+    infrastructureLogging: {
+      level: "error",
+    },
   };
 
   if (ctx.isProduction) {
