@@ -1,37 +1,32 @@
-import gulp from "gulp";
-import del from "del";
-import WebpackDevServer from "webpack-dev-server";
-import chalk from "chalk";
 import path from "path";
-import resolveCwd from "resolve-cwd";
-import Listr, { ListrTask } from "listr";
-import { execa } from "execa";
-import webpack from "webpack";
+import stream from "stream";
+import { promisify } from "util";
 
-import gulpZip from "gulp-zip";
-import gulpTemplate from "gulp-template";
-import gulpRename from "gulp-rename";
-import gulpIf from "gulp-if";
-import gulpCached from "gulp-cached";
+import chalk from "chalk";
+import { execa } from "execa";
+import gulp from "gulp";
 // @ts-expect-error No types for `gulp-file`
 import gulpFile from "gulp-file";
-
-import { promisify } from "util";
-import stream from "stream";
-const pipeline = promisify(stream.pipeline);
-import { FSWatcher } from "fs";
-import { version as builderVersion } from "../package.json";
+import gulpIf from "gulp-if";
+import gulpRename from "gulp-rename";
+import gulpTemplate from "gulp-template";
+import gulpZip from "gulp-zip";
+import Listr, { ListrTask } from "listr";
+import resolveCwd from "resolve-cwd";
+import webpack from "webpack";
+import WebpackDevServer from "webpack-dev-server";
 
 import {
-  loadDocblockPragmas,
-  getAssetDirectories,
-  getAssetPaths,
+  builderAssetsDir,
+  defaultExperiment,
   getJatosStudyMetadata,
-  AssetPaths,
-} from "./util";
-import { defaultExperiment } from "./cli";
-import { builderAssetsDir, getWebpackConfig } from "./config";
+  getWebpackConfig,
+  packageVersion,
+} from "./config";
 import { InitInput } from "./interactions";
+import { AssetPaths, getAssetDirectories, getAssetPaths, loadDocblockPragmas } from "./util";
+
+const pipeline = promisify(stream.pipeline);
 
 export interface BuilderContext {
   userInput?: InitInput;
@@ -47,9 +42,6 @@ export interface BuilderContext {
   assetDirsList?: string[];
   assetDirGlobs?: string[];
   assetPaths?: AssetPaths;
-
-  watchAssets?: boolean;
-  assetWatcher?: FSWatcher;
 
   isForJatos?: boolean;
   isProduction?: boolean;
@@ -68,7 +60,7 @@ export const compileProjectTemplate = {
       experiment,
       title: input.title,
       description: input.description,
-      builderVersion,
+      builderVersion: packageVersion,
     };
 
     return Promise.all([
@@ -156,47 +148,6 @@ export const prepareContext: ListrTask<BuilderContext> = {
   },
 };
 
-const clean: ListrTask<BuilderContext> = {
-  title: "Cleaning build directory",
-  task: (ctx) => del(ctx.dist!),
-};
-
-export const copyAssets: ListrTask<BuilderContext> = {
-  title: "Copying assets",
-  task: (ctx, task) => {
-    if (ctx.assetDirGlobs!.length === 0) {
-      task.skip("No asset directories have been specified.");
-      return;
-    } else {
-      const copy = () =>
-        pipeline(
-          gulp.src(ctx.assetDirGlobs!, { base: "media" }),
-
-          // For watching: Memorize the files and exclude asset files that did not change since the last copying
-          gulpCached("assets", { optimizeMemory: true }),
-
-          gulp.dest(ctx.dist + "/media")
-        );
-
-      if (ctx.watchAssets) {
-        task.title += " and starting to watch asset directories";
-        const watcher = gulp.watch(ctx.assetDirsList!, {}, copy);
-
-        // Mirror deletion of files and directories
-        const mirrorDeletion = (deletedPath: string) => {
-          del.sync(path.resolve(ctx.dist!, path.relative(path.resolve("."), deletedPath)));
-        };
-        watcher.on("unlink", mirrorDeletion);
-        watcher.on("unlinkDir", mirrorDeletion);
-
-        ctx.assetWatcher = watcher;
-      }
-
-      return copy();
-    }
-  },
-};
-
 const webpackBuild: ListrTask<BuilderContext> = {
   title: "Building scripts and styles",
   task: (ctx) =>
@@ -235,6 +186,7 @@ export const webpackDevServer: ListrTask<BuilderContext> = {
         },
         devMiddleware: {
           publicPath: "http://localhost:3000/",
+          // writeToDisk: true, // TODO remove the need for this
         },
         port: 3000,
         client: {
@@ -259,7 +211,7 @@ export const build: ListrTask<BuilderContext> = {
   title: "Building ",
   task: (ctx, task) => {
     task.title += ctx.experiment;
-    return new Listr([prepareContext, clean, copyAssets, webpackBuild]);
+    return new Listr([prepareContext, webpackBuild]);
   },
 };
 
@@ -292,7 +244,7 @@ export const pack: ListrTask<BuilderContext> = {
       gulp.dest("packaged")
     );
 
-    ctx.message = "Your build has been exported to " + chalk.cyan("packaged/" + filename);
+    ctx.message = "Your build has been exported to " + chalk.cyan(`packaged/${filename}`);
     if (isForJatos) {
       ctx.message += '\nYou can now import that file with a JATOS server ("import study"). Cheers!';
     }

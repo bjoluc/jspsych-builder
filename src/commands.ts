@@ -1,28 +1,39 @@
 /**
- * The commands module assembles the tasks from the task module and exports functions to run them.
+ * The commands module assembles tasks and interactions and exports functions to run them.
  */
-
-import Listr from "listr";
-// @ts-expect-error No types package available
-import SilentRenderer from "listr-silent-renderer";
 
 import chalk from "chalk";
 import gulp from "gulp";
-import cache from "gulp-cached";
-import del from "del";
-import path from "path";
+import Listr from "listr";
+// @ts-expect-error No types package available
+import SilentRenderer from "listr-silent-renderer";
 import { intersection } from "lodash-es";
 
+import * as interactions from "./interactions";
 import * as tasks from "./tasks";
-import { loadDocblockPragmas, getDifferingKeys } from "./util";
-import { InitInput } from "./interactions";
+import { getDifferingKeys, loadDocblockPragmas } from "./util";
 
-export async function init(experiment: string, userInput: InitInput) {
+export type InitOptions = {
+  title?: string;
+  description?: string;
+  experimentFile: string;
+  noInteraction?: boolean;
+};
+
+export async function init({ title, description, experimentFile, noInteraction }: InitOptions) {
+  const userInput = noInteraction
+    ? { title: title!, description: description! } // TODO Title and description are required here and should be checked
+    : await interactions.init({ title, description });
+
+  if (!userInput) {
+    return;
+  }
+
   await new Listr([tasks.compileProjectTemplate, tasks.installDependencies]).run({
-    experiment,
+    experiment: experimentFile,
     userInput,
   });
-  console.log("\nDone! Now run " + chalk.bold("jspsych run") + " to start developing!");
+  console.log("\nDone! Now run", chalk.bold("jspsych run"), "to start developing!");
 }
 
 export async function build(experiment: string, isForJatos = false) {
@@ -41,12 +52,10 @@ export async function run(experiment: string) {
     experiment,
     isProduction: false,
     isForJatos: false,
-    watchAssets: true,
   });
 
   console.log(ctx.message);
 
-  let watcher = ctx.assetWatcher!;
   const experimentFile = ctx.absoluteExperimentFilePath!;
 
   // Watch for changes to the experiment file
@@ -62,11 +71,6 @@ export async function run(experiment: string) {
         intersection([...changedPragmas], ["imageDir", "audioDir", "videoDir", "miscDir"]).length
       ) {
         // Restart assets watching (delete assets and copy over again)
-        watcher.close();
-        del.sync(path.resolve(ctx.dist!, "media") + "/**/*");
-        delete cache.caches["assets"];
-        await new Listr([tasks.copyAssets], { renderer: SilentRenderer }).run(ctx);
-        watcher = ctx.assetWatcher!;
       }
     }
   });

@@ -1,8 +1,8 @@
 import { readFileSync } from "fs";
-import glob from "glob-promise";
-import { v4 as uuid } from "uuid";
-import { extract, parse } from "jest-docblock";
+
 import { diff } from "deep-diff";
+import glob from "glob-promise";
+import { extract, parse } from "jest-docblock";
 
 /**
  * Parses and returns the docblock pragma data from a specified file
@@ -69,50 +69,4 @@ export async function getAssetPaths(assetDirectories: AssetPaths): Promise<Asset
       Object.entries(assetDirectories).map(async ([type, dirs]) => [type, await resolvePaths(dirs)])
     )
   );
-}
-
-export function getJatosStudyMetadata(
-  slug: string,
-  title: string,
-  description: string,
-  version: string
-) {
-  return {
-    version: "3",
-    data: {
-      uuid: uuid(),
-      title: `${title} (${version})`,
-      description,
-      groupStudy: false,
-      linearStudy: false,
-      dirName: `${slug}_${version}`,
-      comments: "",
-      jsonData: null,
-      endRedirectUrl: null,
-      componentList: [
-        {
-          uuid: uuid(),
-          title: "jsPsych timeline",
-          htmlFilePath: "index.html",
-          reloadable: true,
-          active: true,
-          comments: "",
-          jsonData: null,
-        },
-      ],
-      batchList: [
-        {
-          uuid: uuid(),
-          title: "Default",
-          active: true,
-          maxActiveMembers: null,
-          maxTotalMembers: null,
-          maxTotalWorkers: null,
-          allowedWorkerTypes: null,
-          comments: null,
-          jsonData: null,
-        },
-      ],
-    },
-  };
 }

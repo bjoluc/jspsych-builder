@@ -4,11 +4,7 @@ import yargs, { Argv } from "yargs";
 import { hideBin } from "yargs/helpers";
 
 import * as commands from "./commands";
-import * as interactions from "./interactions";
-
-import { version as builderVersion } from "../package.json";
-
-export const defaultExperiment = "experiment";
+import { packageVersion } from "./config";
 
 /**
  * Invokes the provided callback function, catches any error and prints it to the console.
@@ -17,7 +13,7 @@ async function handleErrors(callback: () => Promise<any>) {
   try {
     await callback();
   } catch (err) {
-    console.error("\n" + chalk.bold(chalk.red("Error:")) + "\n" + (err as Error).message);
+    console.error(`\n${chalk.bold(chalk.red("Error:"))}\n${(err as Error).message}`);
   }
 }
 
@@ -44,7 +40,7 @@ export const argv = yargs(hideBin(process.argv))
   .group(["help", "version"], "General options:")
   .help("help")
   .alias("help", "h")
-  .version(builderVersion)
+  .version(packageVersion)
   .alias("version", "v")
 
   .demandCommand()
@@ -81,14 +77,9 @@ export const argv = yargs(hideBin(process.argv))
       },
     },
     async ({ title, description, experimentFile, noInteraction }) => {
-      const userInput = noInteraction
-        ? { title: title!, description: description! } // TODO Title and description are required here and should be checked
-        : await interactions.init({ title, description });
-
-      if (userInput) {
-        console.log();
-        await handleErrors(() => commands.init(experimentFile as string, userInput));
-      }
+      await handleErrors(() =>
+        commands.init({ title, description, experimentFile, noInteraction })
+      );
     }
   )
 
@@ -122,7 +113,7 @@ export const argv = yargs(hideBin(process.argv))
   .completion(
     "completion",
     "Output a completion script for your .bashrc",
-    // @ts-expect-error Types do not seem to provide allow `completionFilter`
+    // @ts-expect-error Types do not seem to provide a `completionFilter` override
     (current, argv, completionFilter, done) => {
       if ((argv._ as string[]).some((arg) => ["run", "build", "jatos"].includes(arg))) {
         // Add suggestions for experiment files to the default completions
