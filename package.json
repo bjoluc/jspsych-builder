@@ -151,7 +151,7 @@
     }
   },
   "lint-staged": {
-    "{src,tests}/**/*.js": [
+    "{src,tests}/**/*.{js,ts}": [
       "prettier --write"
     ]
   },
