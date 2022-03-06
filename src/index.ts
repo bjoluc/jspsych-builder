@@ -14,3 +14,6 @@ updateNotifier({ pkg: { name: packageName, version: packageVersion } }).notify()
 
 // Run the program
 argv;
+
+// Export types for user code:
+export * from "./user-types";
