@@ -10,10 +10,6 @@ A CLI utility to easily develop and package [jsPsych](https://www.jspsych.org/) 
 
 Focus on writing your timeline – let jsPsych Builder do the rest.
 
-**Attention:**
-Starting with version 3, jsPsych Builder exclusively supports jsPsych v7.
-If you need to use jsPsych v6, consider installing jsPsych Builder [v2.1.0](https://github.com/bjoluc/jspsych-builder/tree/v2.1.0) via `npm install jspsych-builder@2` instead.
-
 ## Motivation
 
 [jsPsych](https://www.jspsych.org/) can be loaded in three different ways:
@@ -35,13 +31,38 @@ jsPsych Builder requires [Node.js](https://nodejs.org) >= 14 to be installed on 
 
 ## Installation
 
+>**Attention:** Starting with version 3, jsPsych Builder exclusively supports jsPsych v7. If you need to use jsPsych v6, consider installing jsPsych Builder [v2.1.0](https://github.com/bjoluc/jspsych-builder/tree/v2.1.0) via `npx jspsych-builder@v2 init` instead.
+
+
+### npx (recommended)
+
+Latest version:
+
+```bash
+npx jspsych-builder init
+```
+
+Tag/Release-specfic version:
+
+```bash
+npx jspsych-builder@v2 init
+```
+
+<details open>
+  <summary>Why <code>npx</code>?</summary>
+  If you are a <a href="https://github.com/facebook/react">React</a> user, you have likey used <a href="https://github.com/facebook/create-react-app" target="_blank">CRA</a> before (i.e., <code>npx create-react-app my-app</code>). Similar to CRA, running <code>npx jspsych-builder init</code>, will bootstrap a new jsPsych project without installing a global npm package. Moreover, npx initially checks for the latest version (unless specified otherwise), which (1) comes in handy if you want to simultaneously test different versions of <code>jspsych-builder</code>, and (2) you don’t need to worry about updating <code>jspsych-builder</code>.
+</details>
+
+
+### npm 
+
+Depending on your system configuration, you may need admin rights to do so.
+
 ```bash
 npm install -g jspsych-builder
 ```
 
-Depending on your system configuration, you may need admin rights to do so.
-
-If you are working on Linux or OSX and bash is your shell, you may enable command completion by running
+If you decide to use npm and are working on Linux or OSX and bash is your shell, you may enable command completion by running
 `jspsych completion >> ~/.bashrc` (Linux) or `jspsych completion >> ~/.bash_profile` (OSX).
 
 ## Getting started
