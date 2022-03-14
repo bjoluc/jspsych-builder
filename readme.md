@@ -48,7 +48,7 @@ Tag/Release-specfic version:
 npx jspsych-builder@v2 init
 ```
 
-<details open>
+<details>
   <summary>Why <code>npx</code>?</summary>
   If you are a <a href="https://github.com/facebook/react">React</a> user, you have likey used <a href="https://github.com/facebook/create-react-app" target="_blank">CRA</a> before (i.e., <code>npx create-react-app my-app</code>). Similar to CRA, running <code>npx jspsych-builder init</code>, will bootstrap a new jsPsych project without installing a global npm package. Moreover, npx initially checks for the latest version (unless specified otherwise), which (1) comes in handy if you want to simultaneously test different versions of <code>jspsych-builder</code>, and (2) you don’t need to worry about updating <code>jspsych-builder</code>.
 </details>
