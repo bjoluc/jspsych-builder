@@ -3,17 +3,18 @@ import HtmlWebpackTagsPlugin from "html-webpack-tags-plugin";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import webpack, { Configuration } from "webpack";
 import slash from "slash";
-import { fileURLToPath } from "url";
+// import { fileURLToPath } from "url";
 import path from "path";
 import { BuilderContext } from "./tasks";
 
 // Global constants
-export const builderDir = slash(path.resolve(fileURLToPath(import.meta.url), "../.."));
+export const builderDir = slash(path.resolve(__dirname, "../"));
+// export const builderDir = slash(path.resolve(fileURLToPath(import.meta.url), "../.."));
 export const builderAssetsDir = builderDir + "/assets";
 export const builderNodeModulesDir = builderDir + "/node_modules";
 
 export const getWebpackConfig = (ctx: BuilderContext) => {
-  const config: Configuration = {
+  let config: Configuration = {
     entry: builderAssetsDir + "/app.js",
     output: {
       path: ctx.dist,
@@ -68,13 +69,6 @@ export const getWebpackConfig = (ctx: BuilderContext) => {
           },
         },
         {
-          test: /\.mdx?$/,
-          use: [
-            {loader: 'babel-loader', options: {}},
-            { loader: '@mdx-js/loader', options: {} }
-          ]
-        },
-        {
           test: /\.css$/,
           use: [{ loader: MiniCssExtractPlugin.loader }, "css-loader"],
         },
@@ -102,5 +96,6 @@ export const getWebpackConfig = (ctx: BuilderContext) => {
     config.devtool = "inline-source-map";
   }
 
+  config = ctx.config ? ctx.config.webpack(config) : config
   return config;
 };

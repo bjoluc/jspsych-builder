@@ -55,6 +55,8 @@ export interface BuilderContext {
   isProduction?: boolean;
 
   message?: string;
+
+  config?: any
 }
 
 export const compileProjectTemplate = {
@@ -153,6 +155,11 @@ export const prepareContext: ListrTask<BuilderContext> = {
     ctx.assetDirsList = Object.values(ctx.assetDirs).flat();
     ctx.assetDirGlobs = ctx.assetDirsList.map((dir) => dir + "/**/*");
     ctx.assetPaths = await getAssetPaths(ctx.assetDirs);
+
+    // We need to ignore this since we're actually loading this at run-time.
+    const configPath = resolveCwd.silent(path.join(process.cwd(), "jspsych.config.cjs"))
+    // @ts-ignore
+    ctx.config = configPath ? require(configPath) : undefined
   },
 };
 

@@ -2,9 +2,9 @@
   // see https://www.typescriptlang.org/tsconfig to better understand tsconfigs
   "include": ["src", "types"],
   "compilerOptions": {
-    "module": "esnext",
-    "target": "es2020",
-    "lib": ["dom", "esnext"],
+    "module": "commonjs",
+    "target": "ES2020",
+    "lib": ["DOM", "ES6", "ES2020"],
     "importHelpers": true,
     // output .d.ts declaration files for consumers
     "declaration": true,
@@ -32,6 +32,7 @@
     "forceConsistentCasingInFileNames": true,
     // `tsdx build` ignores this option, but it is commonly used when type-checking separately with `tsc`
     "noEmit": true,
-    "downlevelIteration": true
+    "downlevelIteration": true,
+    "allowJs": true
   }
 }
