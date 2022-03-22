@@ -58,8 +58,6 @@
     "@babel/preset-react": "^7.16.7",
     "@babel/preset-typescript": "^7.16.7",
     "@bjoluc/semantic-release-config-npm": "^2.0.1",
-    "@commitlint/cli": "^16.1.0",
-    "@commitlint/config-conventional": "^16.0.0",
     "@jspsych/plugin-fullscreen": "^1.1.0",
     "@jspsych/plugin-html-keyboard-response": "^1.1.0",
     "@jspsych/plugin-preload": "^1.1.0",
@@ -128,27 +126,6 @@
       "path": "./node_modules/cz-conventional-changelog",
       "disableScopeLowerCase": true,
       "disableSubjectLowerCase": true
-    }
-  },
-  "commitlint": {
-    "extends": [
-      "@commitlint/config-conventional"
-    ],
-    "rules": {
-      "subject-case": [
-        2,
-        "always",
-        [
-          "sentence-case"
-        ]
-      ],
-      "scope-case": [
-        0,
-        "never",
-        [
-          "lower-case"
-        ]
-      ]
     }
   },
   "lint-staged": {
