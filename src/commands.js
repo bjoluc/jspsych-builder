@@ -22,7 +22,7 @@ export const init = async (experiment, userInput) => {
     experiment,
     userInput,
   });
-  console.log("\nDone! Now run " + chalk.bold("jspsych run") + " to start developing!");
+  console.log("\nDone! Now run " + chalk.bold("npm start") + " to start developing!");
 };
 
 export const build = async (experiment, isForJatos = false) => {
