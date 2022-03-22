@@ -10,10 +10,6 @@ A CLI utility to easily develop and package [jsPsych](https://www.jspsych.org/) 
 
 Focus on writing your timeline – let jsPsych Builder do the rest.
 
-**Attention:**
-Starting with version 3, jsPsych Builder exclusively supports jsPsych v7.
-If you need to use jsPsych v6, consider installing jsPsych Builder [v2.1.0](https://github.com/bjoluc/jspsych-builder/tree/v2.1.0) via `npm install jspsych-builder@2` instead.
-
 ## Motivation
 
 [jsPsych](https://www.jspsych.org/) can be loaded in three different ways:
@@ -33,27 +29,20 @@ jsPsych Builder solves this by internally configuring common development tools (
 
 jsPsych Builder requires [Node.js](https://nodejs.org) >= 14 to be installed on your machine.
 
-## Installation
-
-```bash
-npm install -g jspsych-builder
-```
-
-Depending on your system configuration, you may need admin rights to do so.
-
-If you are working on Linux or OSX and bash is your shell, you may enable command completion by running
-`jspsych completion >> ~/.bashrc` (Linux) or `jspsych completion >> ~/.bash_profile` (OSX).
-
 ## Getting started
+
+>**Attention:** Starting with version 3, jsPsych Builder exclusively supports jsPsych v7. If you need to work with jsPsych v6, consider using jsPsych Builder [v2.1.0](https://github.com/bjoluc/jspsych-builder/tree/v2.1.0) via `npx jspsych-builder@v2 init`.
 
 Create a new directory, open it in a terminal, and issue
 
 ```bash
-jspsych init
+npx jspsych-builder init
 ```
 
 This will ask you a few questions and set up a new jsPsych project for you.
-Once that's done, you can run `jspsych run` to start a development server for your experiment.
+Within that project, jsPsych Builder installs itself as a development dependency, so no global package installation is required.
+
+Once the project has been initialized, you can run `npm start` to start a development server for your experiment.
 You may then open http://localhost:3000/ to see your experiment in action.
 Whenever you make changes to your source files, the experiment will be updated in the browser as well.
 
@@ -81,9 +70,10 @@ This is also where jsPsych has been saved to.
 The `src` directory is where you write your actual experiments, and `styles` is the place for your custom stylesheets.
 Within `src`, there can be multiple experiment files, as well as arbitrary directories and JavaScript files that you can `import` in your experiment files.
 `experiment.js` is just the default name for the first experiment file.
-All `jspsych` commands take an `experiment-file` argument to specify which experiment file shall be used.
+All jsPsych Builder commands take an `experiment-file` argument to specify which experiment file shall be used.
 By default, that option is set to `experiment`.
-Changing it to `my-second-experiment` (e.g. `jspsych run my-second-experiment`), for instance, would make jsPsych Builder load the `src/my-second-experiment.js` file instead of `src/experiment.js`.
+Changing it to `my-experiment` (for instance via `npm start my-experiment`) would make jsPsych Builder load the `src/my-experiment.js` file instead of `src/experiment.js`.
+This allows you to have multiple related experiments in one place and share code between them.
 
 ## Writing experiments
 
@@ -115,10 +105,20 @@ Note that you have to `import` your styles (or a root style sheet that imports t
 
 ## Packaging experiments
 
-Once you have finished an experiment, you can run `jspsych build`.
+Once you have finished an experiment, you can run `npm run build`.
 This will create a zip file containing all the files required to serve the experiment on any machine.
-If you want to serve your experiment using [JATOS](https://www.jatos.org/), run `jspsych build --jatos` instead to create a JATOS study file (`.jzip`) that can be imported via the JATOS web interface.
+If you want to serve your experiment using [JATOS](https://www.jatos.org/), run `npm run jatos` instead to create a JATOS study file (`.jzip`) that can be imported via the JATOS web interface.
 
-## Usage of the `jspsych` command
+## Installing the jsPsych Builder CLI globally
+
+In case you'd like to have direct access (without `npx` or NPM scripts) to the jsPsych Builder CLI, you can also install jsPsych Builder globally.
+Depending on your system configuration, you may need admin rights to do so:
+
+```bash
+npm install -g jspsych-builder
+```
+
+If you are working on Linux or OSX and bash is your shell, you may enable command completion by running
+`jspsych completion >> ~/.bashrc` (Linux) or `jspsych completion >> ~/.bash_profile` (OSX).
 
 A detailed list of sub commands and their respective options can be displayed by running `jspsych` without any options, or `jspsych --help` with the name of a sub command.

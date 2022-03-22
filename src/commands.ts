@@ -32,7 +32,7 @@ export async function init({ title, description, experimentFile, noInteraction }
     experiment: experimentFile,
     userInput,
   });
-  console.log("\nDone! Now run", chalk.bold("jspsych run"), "to start developing!");
+  console.log("\nDone! Now run", chalk.bold("npm start"), "to start developing!");
 }
 
 export async function build(experiment: string, isForJatos = false) {
