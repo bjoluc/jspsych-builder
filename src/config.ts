@@ -17,6 +17,7 @@ import { CleanWebpackPlugin } from "clean-webpack-plugin";
 import CopyWebpackPlugin from "copy-webpack-plugin";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import HtmlWebpackTagsPlugin from "html-webpack-tags-plugin";
+import { pick } from "lodash-es";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import slash from "slash";
 import { v4 as uuid } from "uuid";
@@ -60,10 +61,11 @@ export const getWebpackConfig = (context: BuilderContext) => {
       new webpack.DefinePlugin({
         JSPSYCH_BUILDER_CONFIG: JSON.stringify({
           assetPaths: context.assetPaths,
+          ...pick(context.pragmas!, ["title", "version"]),
         }),
       }),
       new HtmlWebpackPlugin({
-        title: context.pragmas!.title + (context.isProduction ? "" : " (Development Build)"),
+        title: context.pragmas?.title! + (context.isProduction ? "" : " (Development Build)"),
         meta: {
           "X-UA-Compatible": { "http-equiv": "X-UA-Compatible", content: "ie=edge" },
           viewport: "width=device-width, initial-scale=1.0",

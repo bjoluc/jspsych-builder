@@ -37,13 +37,26 @@ import {
 
 const pipeline = promisify(stream.pipeline);
 
+export interface Pragmas {
+  title: string;
+  description: string;
+  version: string;
+  assets?: string;
+
+  // Deprecated:
+  imageDir?: string;
+  audioDir?: string;
+  videoDir?: string;
+  miscDir?: string;
+}
+
 export interface BuilderContext {
   userInput?: InitInput;
 
   experiment: string;
   absoluteExperimentFilePath?: string;
 
-  pragmas?: Record<string, any>;
+  pragmas?: Pragmas;
 
   /** A list of all asset directory paths */
   assetDirsList?: string[];
@@ -91,10 +104,10 @@ async function prepareContext(ctx: BuilderContext) {
     throw new Error(message);
   }
 
-  ctx.pragmas = loadDocblockPragmas(experimentFile);
+  const pragmas = loadDocblockPragmas(experimentFile);
 
   for (let pragma of ["title", "description", "version"]) {
-    if (typeof ctx.pragmas[pragma] === "undefined") {
+    if (typeof pragmas[pragma] === "undefined") {
       throw new Error(
         `${chalk.bold(experimentFile)} does not specify a "${pragma}" pragma (like ${
           chalk.blue(`@${pragma} `) + chalk.green(`My ${pragma}`)
@@ -103,11 +116,13 @@ async function prepareContext(ctx: BuilderContext) {
     }
   }
 
-  const deprecatedAssetDirs = getDeprecatedAssetDirectories(ctx.pragmas);
+  ctx.pragmas = pragmas as any;
+
+  const deprecatedAssetDirs = getDeprecatedAssetDirectories(ctx.pragmas!);
   const deprecatedAssetPaths = await getDeprecatedAssetPaths(deprecatedAssetDirs);
 
   const [assetDirectories, assetFiles] = await separateDirectoryAndFilePaths(
-    ((ctx.pragmas["assets"] ?? "") as string)
+    ((ctx.pragmas?.assets ?? "") as string)
       .split(",")
       .map((path) => (path.startsWith("/") ? path.slice(1) : path)) // Remove leading slashes
       .filter(Boolean) // Remove empty entries
@@ -263,7 +278,7 @@ export const pack: ListrTask<BuilderContext> = {
               experiment,
               pragmas?.title!,
               pragmas?.description!,
-              pragmas?.version
+              pragmas?.version!
             )
           )
         )

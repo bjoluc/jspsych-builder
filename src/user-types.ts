@@ -5,6 +5,16 @@ import { JsPsych } from "jspsych";
  */
 export interface RunFunctionOptions {
   /**
+   * The title of the experiment, as specified in the `@title` pragma
+   */
+  title: string;
+
+  /**
+   * The version of the experiment, as specified in the `@version` pragma
+   */
+  version: string;
+
+  /**
    * A custom object that can be specified via the JATOS web interface ("JSON study input").
    */
   input?: any;

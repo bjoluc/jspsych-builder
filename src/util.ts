@@ -7,6 +7,8 @@ import glob from "glob-promise";
 import { extract, parse } from "jest-docblock";
 import { uniq } from "lodash-es";
 
+import { Pragmas } from "./tasks";
+
 /**
  * Parses and returns the docblock pragma data from a specified file
  *
@@ -97,8 +99,8 @@ export async function getAssetPaths(directories: readonly string[], files: reado
  * Given the docblock pragmas from the experiment file, extracts the specified image, audio, and
  * video directories and returns an object containing the respective paths.
  */
-export function getDeprecatedAssetDirectories(pragmas: Record<string, string>): AssetPaths {
-  const splitDirectoriesString = (assetDirsString: string) =>
+export function getDeprecatedAssetDirectories(pragmas: Pragmas): AssetPaths {
+  const splitDirectoriesString = (assetDirsString?: string) =>
     assetDirsString?.split(",").map((dir) => "media/" + dir) ?? [];
 
   return {
