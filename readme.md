@@ -18,7 +18,7 @@ The latter option, while very convenient, is the hardest to manually set up.
 jsPsych Builder solves this by internally configuring common development tools (webpack, Babel, etc.) and exposing them via a simple CLI. Most notably, it:
 * sets up the HTML markup
 * provides a development mode with automated browser refreshing (using webpack-dev-server)
-* provides [SASS](https://sass-lang.com/) support
+* provides [Sass](https://sass-lang.com/) support
 * helps with media preloading for custom plugins (by compiling lists of file paths to be preloaded)
 * transpiles, bundles, and minifies scripts to guarantee wide browser compatibility and short loading times (using webpack and Babel)
 * provides TypeScript and React support – simply rename your files to `*.ts`, `*.tsx`, or `*.jsx`.
@@ -59,7 +59,7 @@ Experiments built with jsPsych Builder adhere to the following directory structu
     └── main.scss
 ```
 
-`media` contains your media files, where you are free to modify directory names and add sub directories.
+`assets` is the place for your media files, where you are free to add nested directories.
 `package.json` and `package-lock.json` are files created and maintained by npm, a JavaScript package manager.
 You should leave them in place, as well as `node_modules`, the directory into which npm installs packages.
 This is also where jsPsych has been saved to.
@@ -85,8 +85,8 @@ You can check the [experiment template file](assets/template/src/experiment.tmpl
 If the `run` function returns the JsPsych instance, jsPsych Builder will display the results in the browser window at the end (or save them to JATOS when an experiment is served by JATOS).
 Remove the `return` statement from the `run` function if you don't want jsPsych Builder to handle result data.
 
-The top of the experiment file contains a special section ("docblock") with meta information ("pragmas") on your experiment.
-Feel free to modify these, but make sure to keep the required `title`, `description`, and `version` pragmas.
+The top of the experiment file contains a special section ("docblock") with meta information ("pragmas").
+This is where you specify the title, description, and version of your experiment, as well as any asset files and directories.
 
 ### Assets
 
@@ -120,7 +120,7 @@ They are grouped by their media type (`images`, `video`, `audio`, `misc`), so yo
 
 ### Styles
 
-You can write your style sheets using plain CSS or SASS (.scss).
+You can write your style sheets using plain CSS or [Sass](https://sass-lang.com/) (.scss).
 You may also import style sheets from node packages.
 Note that you have to `import` your styles (or a root style sheet that imports the others) within your experiment file to make the build system include them.
 
