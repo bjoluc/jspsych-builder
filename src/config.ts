@@ -33,12 +33,13 @@ export const defaultExperiment = "experiment";
 export const builderDir = slash(path.resolve(fileURLToPath(import.meta.url), "../.."));
 export const builderAssetsDir = builderDir + "/assets";
 export const builderNodeModulesDir = builderDir + "/node_modules";
+export const distPath = path.resolve(".jspsych-builder");
 
-export const getWebpackConfig = (ctx: BuilderContext) => {
+export const getWebpackConfig = (context: BuilderContext) => {
   const config: Configuration = {
     entry: builderAssetsDir + "/app.js",
     output: {
-      path: ctx.dist,
+      path: distPath,
       filename: "js/app.js",
     },
     resolve: {
@@ -47,7 +48,7 @@ export const getWebpackConfig = (ctx: BuilderContext) => {
       extensions: [".js", ".jsx", ".ts", ".tsx"],
       alias: {
         // Set the current experiment file as an alias so it can be imported in app.js
-        JsPsychBuilderCurrentExperiment: ctx.absoluteExperimentFilePath!,
+        JsPsychBuilderCurrentExperiment: context.absoluteExperimentFilePath!,
       },
     },
     resolveLoader: {
@@ -58,25 +59,18 @@ export const getWebpackConfig = (ctx: BuilderContext) => {
       // Define a global constant with data for usage in app.js
       new webpack.DefinePlugin({
         JSPSYCH_BUILDER_CONFIG: JSON.stringify({
-          assetPaths: ctx.assetPaths,
+          assetPaths: context.assetPaths,
         }),
       }),
       new HtmlWebpackPlugin({
-        title: ctx.meta.title + (ctx.isProduction ? "" : " (Development Build)"),
+        title: context.pragmas!.title + (context.isProduction ? "" : " (Development Build)"),
         meta: {
           "X-UA-Compatible": { "http-equiv": "X-UA-Compatible", content: "ie=edge" },
           viewport: "width=device-width, initial-scale=1.0",
         },
       }),
       new HtmlWebpackTagsPlugin({
-        tags: ctx.isForJatos ? [{ path: "/assets/javascripts/jatos.js", append: false }] : [],
-      }),
-      new CopyWebpackPlugin({
-        patterns: ctx.assetDirsList!.map((directory) => ({
-          from: directory,
-          to: directory,
-          noErrorOnMissing: true, // TODO should this stay true?
-        })),
+        tags: context.isForJatos ? [{ path: "/assets/javascripts/jatos.js", append: false }] : [],
       }),
       new CleanWebpackPlugin(),
     ],
@@ -111,7 +105,7 @@ export const getWebpackConfig = (ctx: BuilderContext) => {
       maxEntrypointSize: 512000,
       maxAssetSize: 512000,
     },
-    mode: ctx.isProduction ? "production" : "development",
+    mode: context.isProduction ? "production" : "development",
     stats: {
       all: false,
       errors: true,
@@ -122,10 +116,28 @@ export const getWebpackConfig = (ctx: BuilderContext) => {
     },
   };
 
-  if (ctx.isProduction) {
+  if (context.isProduction) {
     config.optimization = { minimize: true };
   } else {
     config.devtool = "inline-source-map";
+  }
+
+  if (context.assetDirsList!.length + context.assetFilesList!.length > 0) {
+    config.plugins?.push(
+      new CopyWebpackPlugin({
+        patterns: [
+          ...context.assetDirsList!.map<CopyWebpackPlugin.Pattern>((directory) => ({
+            from: directory,
+            to: directory,
+            noErrorOnMissing: true, // to prevent errors for empty directories
+          })),
+          ...context.assetFilesList!.map<CopyWebpackPlugin.Pattern>((file) => ({
+            from: file,
+            to: file,
+          })),
+        ],
+      })
+    );
   }
 
   return config;

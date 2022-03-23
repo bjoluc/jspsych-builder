@@ -49,10 +49,7 @@ Whenever you make changes to your source files, the experiment will be updated i
 Experiments built with jsPsych Builder adhere to the following directory structure:
 
 ```
-├── media
-│   ├── audio
-│   ├── images
-│   └── video
+├── assets
 ├── node_modules
 ├── package.json
 ├── package-lock.json
@@ -91,11 +88,35 @@ Remove the `return` statement from the `run` function if you don't want jsPsych 
 The top of the experiment file contains a special section ("docblock") with meta information ("pragmas") on your experiment.
 Feel free to modify these, but make sure to keep the required `title`, `description`, and `version` pragmas.
 
-### Media
+### Assets
 
-The optional `@imagesDir`, `@audioDir`, `@videoDir`, and `@miscDir` pragmas have a special functionality:
-You can specify a directory path (or a comma-separated list of paths) within the `media` directory and jsPsych Builder will recursively include all their contents in the build.
-Additionally, the paths of all the included files will be passed to your `run` function as an `assetPaths` argument, in case you need to preload them (e.g. using the [preload plugin](https://www.jspsych.org/latest/plugins/preload/)).
+The `@assets` pragma allows to include arbitrary asset files (like images, videos, etc.) in the build to use them in your experiment.
+The default value
+```
+@assets assets/
+```
+includes all files within the `assets` directory.
+You can also list individual files and directories, separated by commas.
+For instance,
+```
+@assets assets/my-experiment,assets/fixmark.png,test.html
+```
+would include all files within `assets/my-experiment`, as well as `assets/fixmark.png`, and `test.html`.
+
+The paths of all matched `asset` files are provided to the `run` function via the `assetPaths` parameter.
+They are grouped by their media type (`images`, `video`, `audio`, `misc`), so you can preload media files with jsPsych's [preload plugin](https://www.jspsych.org/latest/plugins/preload/) if you need to.
+
+> Migration notice:
+>
+> If you were previously using the `@imagesDir`, `@audioDir`, `@videoDir`, and `@miscDir` pragmas, you can migrate to the `@assets` pragma as in the following example:
+>
+> ```diff
+> - @imagesDir images
+> - @audioDir audio/common,audio/my-experiment
+> + @assets media/images,media/audio/common,media/audio/my-experiment
+> ```
+>
+> Note that `@assets` doesn't prefix the paths with `media/`, as the deprecated `@...Dir` pragmas did.
 
 ### Styles
 

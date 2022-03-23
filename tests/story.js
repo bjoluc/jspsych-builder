@@ -59,13 +59,13 @@ function execute(...args) {
     await axios.get(address); // Throw an error when the dev server is not up
 
     // Test asset watching
-    shell.mkdir("media/images/test");
-    shell.touch("media/images/test/1.txt");
-    shell.touch("media/images/test/2.txt");
+    shell.mkdir("assets/test");
+    shell.touch("assets/test/1.txt");
+    shell.touch("assets/test/2.txt");
     await delay(1000);
     // Verify that the new files were copied over
-    await axios.get(address + "media/images/test/1.txt");
-    await axios.get(address + "media/images/test/2.txt");
+    await axios.get(address + "assets/test/1.txt");
+    await axios.get(address + "assets/test/2.txt");
 
     proc.kill("SIGTERM"); // Kill the dev server
 

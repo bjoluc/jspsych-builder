@@ -2,6 +2,10 @@
  * The commands module assembles tasks and interactions and exports functions to run them.
  */
 
+// When bundled by ncc, auto registration does not work for any-observable@0.3.0 (transitive dep. of
+// listr@0.14.3), hence:
+import "any-observable/register/rxjs-all";
+
 import chalk from "chalk";
 import { watch } from "gulp";
 import Listr from "listr";
@@ -59,13 +63,14 @@ export async function run(experiment: string) {
   // Watch for changes to the experiment file
   watch(experimentFile, async () => {
     // Compute names of changed pragmas
-    const changedPragmas = getDifferingKeys(ctx.meta!, loadDocblockPragmas(experimentFile));
+    const changedPragmas = getDifferingKeys(ctx.pragmas!, loadDocblockPragmas(experimentFile));
 
     if (changedPragmas.size > 0) {
       await ctx.devServer!.stop();
 
       // Rebuild and start the dev server again
-      await new Listr([tasks.build, tasks.webpackDevServer], { renderer: SilentRenderer }).run(ctx);
+      await new Listr([tasks.build]).run(ctx);
+      await new Listr([tasks.webpackDevServer], { renderer: SilentRenderer }).run(ctx);
     }
   });
 }
