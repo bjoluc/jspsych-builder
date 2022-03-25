@@ -158,7 +158,7 @@ export const getWebpackConfig = (context: BuilderContext) => {
     );
   }
 
-  return context.config ? context.config.webpack(config) : config;
+  return context.config?.webpack ? context.config.webpack(config) : config;
 };
 
 export function getJatosStudyMetadata(
