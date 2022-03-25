@@ -59,7 +59,7 @@ export const getWebpackConfig = (context: BuilderContext) => {
       new MiniCssExtractPlugin({ filename: "css/[name].css" }),
       // Define a global constant with data for usage in app.js
       new webpack.DefinePlugin({
-        JSPSYCH_BUILDER_CONFIG: JSON.stringify({
+        JSPSYCH_BUILDER_OPTIONS: JSON.stringify({
           assetPaths: context.assetPaths,
           ...pick(context.pragmas!, ["title", "version"]),
         }),
