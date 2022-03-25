@@ -12,6 +12,7 @@ import gulpTemplate from "gulp-template";
 import gulpZip from "gulp-zip";
 import { ListrTask } from "listr";
 import { mergeWith, sortedUniq } from "lodash-es";
+import portFinder from "portfinder";
 import resolveCwd from "resolve-cwd";
 import { Observable } from "rxjs";
 import webpack, { Compiler } from "webpack";
@@ -72,6 +73,8 @@ export interface BuilderContext {
 
   isForJatos?: boolean;
   isProduction?: boolean;
+
+  devServerPort?: number;
 
   compiler?: Compiler;
   devServer?: WebpackDevServer;
@@ -227,15 +230,16 @@ export const build: ListrTask<BuilderContext> = {
 export const webpackDevServer: ListrTask<BuilderContext> = {
   title: "Starting development server",
   task: async (ctx) => {
+    if (!ctx.devServerPort) {
+      ctx.devServerPort = await portFinder.getPortPromise({ port: 3000 });
+    }
+
     const devServer = new WebpackDevServer(
       {
         static: {
           directory: distPath,
         },
-        devMiddleware: {
-          publicPath: "http://localhost:3000/",
-        },
-        port: 3000,
+        port: ctx.devServerPort,
         client: {
           overlay: true,
         },
