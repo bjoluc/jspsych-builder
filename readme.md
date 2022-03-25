@@ -143,3 +143,20 @@ If you are working on Linux or OSX and bash is your shell, you may enable comman
 `jspsych completion >> ~/.bashrc` (Linux) or `jspsych completion >> ~/.bash_profile` (OSX).
 
 A detailed list of sub commands and their respective options can be displayed by running `jspsych` without any options, or `jspsych --help` with the name of a sub command.
+
+## Customizing the webpack configuration
+
+> If you decide to take this path, be aware that even minor and patch releases of jsPsych Builder may break your setup, since the webpack config can be subject to change without notice – you have been warned!
+
+If you need to, you can customize jsPsych Builder's internal [webpack configuration](https://webpack.js.org/configuration/#options) to fit your needs: In the root directory of your project (next to your `package.json`), create a `builder.config.mjs` file containing
+
+```js
+/** @param {import("webpack").Configuration} config */
+export function webpack(config) {
+  return config;
+};
+
+```
+
+The function that you export gets the webpack config that jsPsych Builder has assembled internally.
+You can modify it and return your modified version so jsPsych Builder will use it instead of its own config.

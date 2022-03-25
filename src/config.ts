@@ -1,5 +1,5 @@
 import path from "path";
-import { fileURLToPath } from "url";
+import { fileURLToPath, pathToFileURL } from "url";
 
 // @ts-expect-error
 import babelPluginProposalClassProperties from "@babel/plugin-proposal-class-properties";
@@ -19,9 +19,10 @@ import HtmlWebpackPlugin from "html-webpack-plugin";
 import HtmlWebpackTagsPlugin from "html-webpack-tags-plugin";
 import { pick } from "lodash-es";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
+import { silent as resolveCwd } from "resolve-cwd";
 import slash from "slash";
 import { v4 as uuid } from "uuid";
-import webpack, { Configuration } from "webpack";
+import webpack, { Configuration as WebpackConfiguration } from "webpack";
 
 import packageJson from "../package.json";
 import { BuilderContext } from "./tasks";
@@ -36,8 +37,28 @@ export const builderAssetsDir = builderDir + "/assets";
 export const builderNodeModulesDir = builderDir + "/node_modules";
 export const distPath = path.resolve(".jspsych-builder");
 
+export interface UserConfig {
+  webpack?: (config: WebpackConfiguration) => WebpackConfiguration;
+}
+
+/**
+ * Load `builder.config.js`. If the file is present, returns the module loaded from it.
+ * Otherwise, returns undefined.
+ */
+export async function loadUserConfig() {
+  const configPath =
+    resolveCwd("./builder.config.js") ??
+    resolveCwd("./builder.config.mjs") ??
+    resolveCwd("./builder.config.cjs");
+  if (configPath) {
+    // https://webpack.js.org/api/module-methods/#dynamic-expressions-in-import
+    // @ts-expect-error TypeScript doesn't know that node `import()` can take an URL object
+    return await import(/* webpackIgnore: true */ pathToFileURL(configPath));
+  }
+}
+
 export const getWebpackConfig = (context: BuilderContext) => {
-  const config: Configuration = {
+  const config: WebpackConfiguration = {
     entry: builderAssetsDir + "/app.js",
     output: {
       path: distPath,
@@ -142,7 +163,7 @@ export const getWebpackConfig = (context: BuilderContext) => {
     );
   }
 
-  return config;
+  return context.config?.webpack ? context.config.webpack(config) : config;
 };
 
 export function getJatosStudyMetadata(

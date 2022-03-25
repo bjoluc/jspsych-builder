@@ -13,17 +13,19 @@ import gulpZip from "gulp-zip";
 import { ListrTask } from "listr";
 import { mergeWith, sortedUniq } from "lodash-es";
 import portFinder from "portfinder";
-import resolveCwd from "resolve-cwd";
+import { silent as resolveCwd } from "resolve-cwd";
 import { Observable } from "rxjs";
 import webpack, { Compiler } from "webpack";
 import WebpackDevServer from "webpack-dev-server";
 
 import {
+  UserConfig,
   builderAssetsDir,
   defaultExperiment,
   distPath,
   getJatosStudyMetadata,
   getWebpackConfig,
+  loadUserConfig,
   packageVersion,
 } from "./config";
 import { InitInput } from "./interactions";
@@ -79,6 +81,8 @@ export interface BuilderContext {
   compiler?: Compiler;
   devServer?: WebpackDevServer;
   message?: string;
+
+  config?: UserConfig;
 }
 
 async function prepareContext(ctx: BuilderContext) {
@@ -88,7 +92,7 @@ async function prepareContext(ctx: BuilderContext) {
   let experimentFile;
   for (const suffix of ["", ".js", ".ts", ".jsx", ".tsx"]) {
     const relativePath = "./src/" + experiment + suffix;
-    const absolutePath = resolveCwd.silent(relativePath);
+    const absolutePath = resolveCwd(relativePath);
     if (absolutePath) {
       experimentFile = relativePath;
       ctx.absoluteExperimentFilePath = absolutePath;
@@ -138,6 +142,8 @@ async function prepareContext(ctx: BuilderContext) {
   ctx.assetPaths = mergeWith(assetPaths, deprecatedAssetPaths, (objValue, srcValue) =>
     sortedUniq(objValue.concat(srcValue).sort())
   );
+
+  ctx.config = await loadUserConfig();
 }
 
 export const compileProjectTemplate = {
