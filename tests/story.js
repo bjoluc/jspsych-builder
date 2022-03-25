@@ -8,10 +8,13 @@ import { execa } from "execa";
 import shell from "shelljs";
 
 function execute(...args) {
-  const proc = execa(...args);
+  const proc = execa("../../dist/index.js", ...args);
   proc.stdout.pipe(process.stdout);
   return proc;
 }
+
+const logHeader = (title) => console.log(`\n=== ${title} ===\n`);
+const logTaskHeader = (name) => logHeader(`Running '${name}'`);
 
 (async () => {
   try {
@@ -24,12 +27,8 @@ function execute(...args) {
     shell.mkdir("story");
     shell.cd("story");
 
-    const cmd = "../../dist/index.js";
-
-    const logTaskHeader = (name) => console.log(`\n=== Running '${name}' ===\n`);
-
     logTaskHeader("jspsych init");
-    await execute(cmd, [
+    await execute([
       "init",
       "-e",
       "my-experiment",
@@ -41,7 +40,7 @@ function execute(...args) {
     ]);
 
     logTaskHeader("jspsych run");
-    const proc = execute(cmd, ["run", "my-experiment"]);
+    const proc = execute(["run", "my-experiment"]);
 
     const address = "http://localhost:3000/";
 
@@ -75,12 +74,30 @@ function execute(...args) {
       assert(shell.test("-f", "packaged/" + filename));
       shell.rm("-r", "packaged");
     };
-    await execute(cmd, ["build", "my-experiment"]);
+    await execute(["build", "my-experiment"]);
     checkForBuiltPackage("my-experiment_0.1.0.zip");
 
     logTaskHeader("jspsych build --jatos");
-    await execute(cmd, ["build", "--jatos", "my-experiment"]);
+    await execute(["build", "--jatos", "my-experiment"]);
     checkForBuiltPackage("my-experiment_0.1.0.jzip");
+
+    logHeader("Testing user config support");
+    for (const [suffix, configFileContents] of Object.entries({
+      js: `module.exports.webpack = (config) => { console.log("Hello from js config"); return config; };`,
+      cjs: `module.exports.webpack = (config) => { console.log("Hello from cjs config"); return config; };`,
+      mjs: `export const webpack = (config) => { console.log("Hello from mjs config"); return config; };`,
+    })) {
+      const configFilename = "builder.config." + suffix;
+      console.log(`${configFilename}\n`);
+      shell.ShellString(configFileContents).to(configFilename);
+
+      assert(
+        (await execute(["build", "my-experiment"])).stdout.includes(`Hello from ${suffix} config`)
+      );
+
+      shell.rm(configFilename);
+      console.log();
+    }
 
     console.log("\nStory test passed");
   } catch (err) {
