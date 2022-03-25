@@ -18,6 +18,7 @@ import webpack, { Compiler } from "webpack";
 import WebpackDevServer from "webpack-dev-server";
 
 import {
+  UserConfig,
   builderAssetsDir,
   defaultExperiment,
   distPath,
@@ -78,7 +79,7 @@ export interface BuilderContext {
   devServer?: WebpackDevServer;
   message?: string;
 
-  config?: any;
+  config?: UserConfig;
 }
 
 async function prepareContext(ctx: BuilderContext) {

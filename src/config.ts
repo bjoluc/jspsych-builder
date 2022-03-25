@@ -22,7 +22,7 @@ import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import { silent as resolveCwd } from "resolve-cwd";
 import slash from "slash";
 import { v4 as uuid } from "uuid";
-import webpack, { Configuration } from "webpack";
+import webpack, { Configuration as WebpackConfiguration } from "webpack";
 
 import packageJson from "../package.json";
 import { BuilderContext } from "./tasks";
@@ -36,6 +36,10 @@ export const builderDir = slash(path.resolve(fileURLToPath(import.meta.url), "..
 export const builderAssetsDir = builderDir + "/assets";
 export const builderNodeModulesDir = builderDir + "/node_modules";
 export const distPath = path.resolve(".jspsych-builder");
+
+export interface UserConfig {
+  webpack?: (config: WebpackConfiguration) => WebpackConfiguration;
+}
 
 /**
  * Load `builder.config.js`. If the file is present, returns the module loaded from it.
@@ -54,7 +58,7 @@ export async function loadUserConfig() {
 }
 
 export const getWebpackConfig = (context: BuilderContext) => {
-  const config: Configuration = {
+  const config: WebpackConfiguration = {
     entry: builderAssetsDir + "/app.js",
     output: {
       path: distPath,
