@@ -47,9 +47,8 @@ export async function loadUserConfig() {
     resolveCwd("./builder.config.mjs") ??
     resolveCwd("./builder.config.cjs");
   if (configPath) {
-    // Using `eval` here to bypass webpack import handling
-    // (https://webpack.js.org/api/module-methods/#dynamic-expressions-in-import)
-    return await eval(`import("${configPath.replaceAll('"', '\\"')}")`);
+    // https://webpack.js.org/api/module-methods/#dynamic-expressions-in-import
+    return await import(/* webpackIgnore: true */ configPath);
   }
 }
 
