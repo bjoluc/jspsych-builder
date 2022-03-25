@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.2.0](https://github.com/bjoluc/jspsych-builder/compare/v4.1.2...v4.2.0) (2022-03-25)
+
+
+### Features
+
+* **`run` command:** Add a `port` option and search for the first free port >= 3000 by default ([#28](https://github.com/bjoluc/jspsych-builder/issues/28)) ([55e606d](https://github.com/bjoluc/jspsych-builder/commit/55e606d9f81d63d3af2c9039944fe35fa4eeeda8)), closes [#19](https://github.com/bjoluc/jspsych-builder/issues/19) [#19](https://github.com/bjoluc/jspsych-builder/issues/19)
+* Allow webpack config customizations via `builder.config.js` ([06cc282](https://github.com/bjoluc/jspsych-builder/commit/06cc2827817b1c66072f1243f1cb537ee347affc)), closes [#21](https://github.com/bjoluc/jspsych-builder/issues/21)
+* **CLI:** Show webpack build progress ([d1597bb](https://github.com/bjoluc/jspsych-builder/commit/d1597bbf76c1d258c65aac9d2eac9b869f20a21c))
+* Export TypeScript types for the `run` function ([2e66331](https://github.com/bjoluc/jspsych-builder/commit/2e663312c03fd3cf6023b902a7aab49c136d67da))
+* Introduce a general `assets` pragma and deprecate the individual media pragmas ([263db46](https://github.com/bjoluc/jspsych-builder/commit/263db464de35e663018af34f3a734abbad04ee86)), closes [#18](https://github.com/bjoluc/jspsych-builder/issues/18) [#18](https://github.com/bjoluc/jspsych-builder/issues/18)
+* Pass the `title` and `version` pragmas as options to the experiment's `run` function ([1f53433](https://github.com/bjoluc/jspsych-builder/commit/1f5343314c5e7591d0028194dd89bf9764cce326)), closes [#22](https://github.com/bjoluc/jspsych-builder/issues/22)
+
+
+### Bug Fixes
+
+* **`run` command:** Fix release asset watching of nested directories on MacOS and Windows ([03798b5](https://github.com/bjoluc/jspsych-builder/commit/03798b5b6708faca1327a14cff5f7aef42720a84)), closes [#13](https://github.com/bjoluc/jspsych-builder/issues/13)
+* Circumvent size warning due to inlined web fonts in jsPsych's stylesheet ([0db636c](https://github.com/bjoluc/jspsych-builder/commit/0db636c2b624485d556eeebc0d765b40b6f5e4a3))
+
 ### [4.1.2](https://github.com/bjoluc/jspsych-builder/compare/v4.1.1...v4.1.2) (2022-02-09)
 
 
