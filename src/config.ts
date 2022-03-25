@@ -1,5 +1,5 @@
 import path from "path";
-import { fileURLToPath } from "url";
+import { fileURLToPath, pathToFileURL } from "url";
 
 // @ts-expect-error
 import babelPluginProposalClassProperties from "@babel/plugin-proposal-class-properties";
@@ -48,7 +48,8 @@ export async function loadUserConfig() {
     resolveCwd("./builder.config.cjs");
   if (configPath) {
     // https://webpack.js.org/api/module-methods/#dynamic-expressions-in-import
-    return await import(/* webpackIgnore: true */ configPath);
+    // @ts-expect-error TypeScript doesn't know that node `import()` can take an URL object
+    return await import(/* webpackIgnore: true */ pathToFileURL(configPath));
   }
 }
 
