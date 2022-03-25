@@ -19,6 +19,7 @@ import HtmlWebpackPlugin from "html-webpack-plugin";
 import HtmlWebpackTagsPlugin from "html-webpack-tags-plugin";
 import { pick } from "lodash-es";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
+import { silent as resolveCwd } from "resolve-cwd";
 import slash from "slash";
 import { v4 as uuid } from "uuid";
 import webpack, { Configuration } from "webpack";
@@ -31,11 +32,26 @@ export const packageName = packageJson.name;
 export const packageVersion = packageJson.version;
 
 export const defaultExperiment = "experiment";
-export const builderDir = slash(path.resolve(__dirname, "../"));
-// export const builderDir = slash(path.resolve(fileURLToPath(import.meta.url), "../.."));
+export const builderDir = slash(path.resolve(fileURLToPath(import.meta.url), "../.."));
 export const builderAssetsDir = builderDir + "/assets";
 export const builderNodeModulesDir = builderDir + "/node_modules";
 export const distPath = path.resolve(".jspsych-builder");
+
+/**
+ * Load `builder.config.js`. If the file is present, returns the module loaded from it.
+ * Otherwise, returns undefined.
+ */
+export async function loadUserConfig() {
+  const configPath =
+    resolveCwd("./builder.config.js") ??
+    resolveCwd("./builder.config.mjs") ??
+    resolveCwd("./builder.config.cjs");
+  if (configPath) {
+    // Using `eval` here to bypass webpack import handling
+    // (https://webpack.js.org/api/module-methods/#dynamic-expressions-in-import)
+    return await eval(`import("${configPath.replaceAll('"', '\\"')}")`);
+  }
+}
 
 export const getWebpackConfig = (context: BuilderContext) => {
   const config: Configuration = {

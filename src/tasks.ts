@@ -1,4 +1,3 @@
-import path from "path";
 import stream from "stream";
 import { promisify } from "util";
 
@@ -13,7 +12,7 @@ import gulpTemplate from "gulp-template";
 import gulpZip from "gulp-zip";
 import { ListrTask } from "listr";
 import { mergeWith, sortedUniq } from "lodash-es";
-import resolveCwd from "resolve-cwd";
+import { silent as resolveCwd } from "resolve-cwd";
 import { Observable } from "rxjs";
 import webpack, { Compiler } from "webpack";
 import WebpackDevServer from "webpack-dev-server";
@@ -24,6 +23,7 @@ import {
   distPath,
   getJatosStudyMetadata,
   getWebpackConfig,
+  loadUserConfig,
   packageVersion,
 } from "./config";
 import { InitInput } from "./interactions";
@@ -88,7 +88,7 @@ async function prepareContext(ctx: BuilderContext) {
   let experimentFile;
   for (const suffix of ["", ".js", ".ts", ".jsx", ".tsx"]) {
     const relativePath = "./src/" + experiment + suffix;
-    const absolutePath = resolveCwd.silent(relativePath);
+    const absolutePath = resolveCwd(relativePath);
     if (absolutePath) {
       experimentFile = relativePath;
       ctx.absoluteExperimentFilePath = absolutePath;
@@ -139,10 +139,7 @@ async function prepareContext(ctx: BuilderContext) {
     sortedUniq(objValue.concat(srcValue).sort())
   );
 
-  // We need to ignore this since we're actually loading this at run-time.
-  const configPath = resolveCwd.silent(path.join(process.cwd(), "jspsych.config.cjs"));
-  // @ts-ignore
-  ctx.config = configPath ? require(configPath) : undefined;
+  ctx.config = await loadUserConfig();
 }
 
 export const compileProjectTemplate = {
