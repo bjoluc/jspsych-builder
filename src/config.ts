@@ -1,23 +1,47 @@
+import path from "path";
+import { fileURLToPath } from "url";
+
+// @ts-expect-error
+import babelPluginProposalClassProperties from "@babel/plugin-proposal-class-properties";
+// @ts-expect-error
+import babelPluginProposalObjectRestSpread from "@babel/plugin-proposal-object-rest-spread";
+// @ts-expect-error
+import babelPluginTransformClasses from "@babel/plugin-transform-classes";
+// @ts-expect-error
+import babelPresetEnv from "@babel/preset-env";
+// @ts-expect-error
+import babelPresetReact from "@babel/preset-react";
+// @ts-expect-error
+import babelPresetTypescript from "@babel/preset-typescript";
+import { CleanWebpackPlugin } from "clean-webpack-plugin";
+import CopyWebpackPlugin from "copy-webpack-plugin";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import HtmlWebpackTagsPlugin from "html-webpack-tags-plugin";
+import { pick } from "lodash-es";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
-import webpack, { Configuration } from "webpack";
 import slash from "slash";
-// import { fileURLToPath } from "url";
-import path from "path";
+import { v4 as uuid } from "uuid";
+import webpack, { Configuration } from "webpack";
+
+import packageJson from "../package.json";
 import { BuilderContext } from "./tasks";
 
 // Global constants
+export const packageName = packageJson.name;
+export const packageVersion = packageJson.version;
+
+export const defaultExperiment = "experiment";
 export const builderDir = slash(path.resolve(__dirname, "../"));
 // export const builderDir = slash(path.resolve(fileURLToPath(import.meta.url), "../.."));
 export const builderAssetsDir = builderDir + "/assets";
 export const builderNodeModulesDir = builderDir + "/node_modules";
+export const distPath = path.resolve(".jspsych-builder");
 
-export const getWebpackConfig = (ctx: BuilderContext) => {
-  let config: Configuration = {
+export const getWebpackConfig = (context: BuilderContext) => {
+  const config: Configuration = {
     entry: builderAssetsDir + "/app.js",
     output: {
-      path: ctx.dist,
+      path: distPath,
       filename: "js/app.js",
     },
     resolve: {
@@ -26,7 +50,7 @@ export const getWebpackConfig = (ctx: BuilderContext) => {
       extensions: [".js", ".jsx", ".ts", ".tsx"],
       alias: {
         // Set the current experiment file as an alias so it can be imported in app.js
-        JsPsychBuilderCurrentExperiment: ctx.absoluteExperimentFilePath!,
+        JsPsychBuilderCurrentExperiment: context.absoluteExperimentFilePath!,
       },
     },
     resolveLoader: {
@@ -36,20 +60,22 @@ export const getWebpackConfig = (ctx: BuilderContext) => {
       new MiniCssExtractPlugin({ filename: "css/[name].css" }),
       // Define a global constant with data for usage in app.js
       new webpack.DefinePlugin({
-        JSPSYCH_BUILDER_CONFIG: JSON.stringify({
-          assetPaths: ctx.assetPaths,
+        JSPSYCH_BUILDER_OPTIONS: JSON.stringify({
+          assetPaths: context.assetPaths,
+          ...pick(context.pragmas!, ["title", "version"]),
         }),
       }),
       new HtmlWebpackPlugin({
-        title: ctx.meta.title + (ctx.isProduction ? "" : " (Development Build)"),
+        title: context.pragmas?.title! + (context.isProduction ? "" : " (Development Build)"),
         meta: {
           "X-UA-Compatible": { "http-equiv": "X-UA-Compatible", content: "ie=edge" },
           viewport: "width=device-width, initial-scale=1.0",
         },
       }),
       new HtmlWebpackTagsPlugin({
-        tags: ctx.isForJatos ? [{ path: "/assets/javascripts/jatos.js", append: false }] : [],
+        tags: context.isForJatos ? [{ path: "/assets/javascripts/jatos.js", append: false }] : [],
       }),
+      new CleanWebpackPlugin(),
     ],
     module: {
       rules: [
@@ -59,11 +85,11 @@ export const getWebpackConfig = (ctx: BuilderContext) => {
           use: {
             loader: "babel-loader",
             options: {
-              presets: ["@babel/preset-env", "@babel/preset-typescript", "@babel/preset-react"],
+              presets: [babelPresetEnv, babelPresetTypescript, babelPresetReact],
               plugins: [
-                "@babel/plugin-proposal-class-properties",
-                ["@babel/plugin-transform-classes", { loose: true }],
-                "@babel/plugin-proposal-object-rest-spread",
+                babelPluginProposalClassProperties,
+                [babelPluginTransformClasses, { loose: true }],
+                babelPluginProposalObjectRestSpread,
               ],
             },
           },
@@ -82,20 +108,86 @@ export const getWebpackConfig = (ctx: BuilderContext) => {
       maxEntrypointSize: 512000,
       maxAssetSize: 512000,
     },
-    mode: ctx.isProduction ? "production" : "development",
+    mode: context.isProduction ? "production" : "development",
     stats: {
       all: false,
       errors: true,
       warnings: true,
     },
+    infrastructureLogging: {
+      level: "error",
+    },
   };
 
-  if (ctx.isProduction) {
+  if (context.isProduction) {
     config.optimization = { minimize: true };
   } else {
     config.devtool = "inline-source-map";
   }
 
-  config = ctx.config ? ctx.config.webpack(config) : config
-  return config;
+  if (context.assetDirsList!.length + context.assetFilesList!.length > 0) {
+    config.plugins?.push(
+      new CopyWebpackPlugin({
+        patterns: [
+          ...context.assetDirsList!.map<CopyWebpackPlugin.Pattern>((directory) => ({
+            from: directory,
+            to: directory,
+            noErrorOnMissing: true, // to prevent errors for empty directories
+          })),
+          ...context.assetFilesList!.map<CopyWebpackPlugin.Pattern>((file) => ({
+            from: file,
+            to: file,
+          })),
+        ],
+      })
+    );
+  }
+
+  return context.config ? context.config.webpack(config) : config;
 };
+
+export function getJatosStudyMetadata(
+  slug: string,
+  title: string,
+  description: string,
+  version: string
+) {
+  return {
+    version: "3",
+    data: {
+      uuid: uuid(),
+      title: `${title} (${version})`,
+      description,
+      groupStudy: false,
+      linearStudy: false,
+      dirName: `${slug}_${version}`,
+      comments: "",
+      jsonData: null,
+      endRedirectUrl: null,
+      componentList: [
+        {
+          uuid: uuid(),
+          title: "jsPsych timeline",
+          htmlFilePath: "index.html",
+          reloadable: true,
+          active: true,
+          comments: "",
+          jsonData: null,
+        },
+      ],
+      batchList: [
+        {
+          uuid: uuid(),
+          title: "Default",
+          active: true,
+          maxActiveMembers: null,
+          maxTotalMembers: null,
+          maxTotalWorkers: null,
+          allowedWorkerTypes: null,
+          comments: null,
+          jsonData: null,
+        },
+      ],
+    },
+  };
+}

@@ -5,13 +5,13 @@ import "regenerator-runtime/runtime.js";
 
 import { run } from "JsPsychBuilderCurrentExperiment"; // webpack alias for the main experiment file
 
-const { assetPaths } = JSPSYCH_BUILDER_CONFIG; // Injected by webpack
+const options = JSPSYCH_BUILDER_OPTIONS; // Injected by webpack
 
 if (typeof jatos === "undefined") {
   // Experiment is run locally
   run({
     environment: process.env.NODE_ENV === "production" ? "production" : "development",
-    assetPaths,
+    ...options,
   }).then((jsPsych) => {
     if (jsPsych) {
       jsPsych.data.displayData();
@@ -21,9 +21,9 @@ if (typeof jatos === "undefined") {
   // Experiment is served by JATOS
   jatos.onLoad(async () => {
     const jsPsych = await run({
-      input: jatos.studyJsonInput,
       environment: "jatos",
-      assetPaths,
+      input: jatos.studyJsonInput,
+      ...options,
     });
 
     if (jsPsych) {

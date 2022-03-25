@@ -1,62 +1,148 @@
-import gulp from "gulp";
-import del from "del";
-import WebpackDevServer from "webpack-dev-server";
-import chalk from "chalk";
 import path from "path";
-import resolveCwd from "resolve-cwd";
-import Listr, { ListrTask } from "listr";
-import { execa } from "execa";
-import webpack from "webpack";
+import stream from "stream";
+import { promisify } from "util";
 
-import gulpZip from "gulp-zip";
-import gulpTemplate from "gulp-template";
-import gulpRename from "gulp-rename";
-import gulpIf from "gulp-if";
-import gulpCached from "gulp-cached";
+import chalk from "chalk";
+import { execa } from "execa";
+import gulp from "gulp";
 // @ts-expect-error No types for `gulp-file`
 import gulpFile from "gulp-file";
-
-import { promisify } from "util";
-import stream from "stream";
-const pipeline = promisify(stream.pipeline);
-import { FSWatcher } from "fs";
-import { version as builderVersion } from "../package.json";
+import gulpIf from "gulp-if";
+import gulpRename from "gulp-rename";
+import gulpTemplate from "gulp-template";
+import gulpZip from "gulp-zip";
+import { ListrTask } from "listr";
+import { mergeWith, sortedUniq } from "lodash-es";
+import resolveCwd from "resolve-cwd";
+import { Observable } from "rxjs";
+import webpack, { Compiler } from "webpack";
+import WebpackDevServer from "webpack-dev-server";
 
 import {
-  loadDocblockPragmas,
-  getAssetDirectories,
-  getAssetPaths,
+  builderAssetsDir,
+  defaultExperiment,
+  distPath,
   getJatosStudyMetadata,
-  AssetPaths,
-} from "./util";
-import { defaultExperiment } from "./cli";
-import { builderAssetsDir, getWebpackConfig } from "./config";
+  getWebpackConfig,
+  packageVersion,
+} from "./config";
 import { InitInput } from "./interactions";
+import {
+  AssetPaths,
+  getAssetPaths,
+  getDeprecatedAssetDirectories,
+  getDeprecatedAssetPaths,
+  loadDocblockPragmas,
+  separateDirectoryAndFilePaths,
+} from "./util";
+
+const pipeline = promisify(stream.pipeline);
+
+export interface Pragmas {
+  title: string;
+  description: string;
+  version: string;
+  assets?: string;
+
+  // Deprecated:
+  imageDir?: string;
+  audioDir?: string;
+  videoDir?: string;
+  miscDir?: string;
+}
 
 export interface BuilderContext {
   userInput?: InitInput;
 
   experiment: string;
   absoluteExperimentFilePath?: string;
-  relativeDistPath?: string;
 
-  meta?: any;
-  dist?: string;
+  pragmas?: Pragmas;
 
-  assetDirs?: AssetPaths;
+  /** A list of all asset directory paths */
   assetDirsList?: string[];
-  assetDirGlobs?: string[];
-  assetPaths?: AssetPaths;
 
-  watchAssets?: boolean;
-  assetWatcher?: FSWatcher;
+  /** A list of paths of all asset files that do not reside in a directory in `assetDirsList` */
+  assetFilesList?: string[];
+
+  /**
+   * The asset paths, grouped by their type, that will be passed to the experiment file's `run`
+   * function
+   */
+  assetPaths?: AssetPaths;
 
   isForJatos?: boolean;
   isProduction?: boolean;
 
+  compiler?: Compiler;
+  devServer?: WebpackDevServer;
   message?: string;
 
-  config?: any
+  config?: any;
+}
+
+async function prepareContext(ctx: BuilderContext) {
+  const experiment = ctx.experiment;
+
+  // Resolve experiment file
+  let experimentFile;
+  for (const suffix of ["", ".js", ".ts", ".jsx", ".tsx"]) {
+    const relativePath = "./src/" + experiment + suffix;
+    const absolutePath = resolveCwd.silent(relativePath);
+    if (absolutePath) {
+      experimentFile = relativePath;
+      ctx.absoluteExperimentFilePath = absolutePath;
+    }
+  }
+
+  if (!experimentFile) {
+    let message = `Experiment file ${chalk.bold(
+      experiment + ".js"
+    )} (or .ts, .jsx, .tsx) does not exist.`;
+
+    if (experiment === defaultExperiment) {
+      message += ` Did you forget to provide the ${chalk.green("[experiment-file]")} argument?`;
+    }
+
+    throw new Error(message);
+  }
+
+  const pragmas = loadDocblockPragmas(experimentFile);
+
+  for (let pragma of ["title", "description", "version"]) {
+    if (typeof pragmas[pragma] === "undefined") {
+      throw new Error(
+        `${chalk.bold(experimentFile)} does not specify a "${pragma}" pragma (like ${
+          chalk.blue(`@${pragma} `) + chalk.green(`My ${pragma}`)
+        }). Please add it and try again.`
+      );
+    }
+  }
+
+  ctx.pragmas = pragmas as any;
+
+  const deprecatedAssetDirs = getDeprecatedAssetDirectories(ctx.pragmas!);
+  const deprecatedAssetPaths = await getDeprecatedAssetPaths(deprecatedAssetDirs);
+
+  const [assetDirectories, assetFiles] = await separateDirectoryAndFilePaths(
+    ((ctx.pragmas?.assets ?? "") as string)
+      .split(",")
+      .map((path) => (path.startsWith("/") ? path.slice(1) : path)) // Remove leading slashes
+      .filter(Boolean) // Remove empty entries
+  );
+
+  ctx.assetDirsList = [...assetDirectories, ...Object.values(deprecatedAssetDirs).flat()];
+  ctx.assetFilesList = assetFiles;
+
+  const assetPaths = await getAssetPaths(assetDirectories, assetFiles);
+  ctx.assetPaths = mergeWith(assetPaths, deprecatedAssetPaths, (objValue, srcValue) =>
+    sortedUniq(objValue.concat(srcValue).sort())
+  );
+
+  // We need to ignore this since we're actually loading this at run-time.
+  const configPath = resolveCwd.silent(path.join(process.cwd(), "jspsych.config.cjs"));
+  // @ts-ignore
+  ctx.config = configPath ? require(configPath) : undefined;
 }
 
 export const compileProjectTemplate = {
@@ -70,7 +156,7 @@ export const compileProjectTemplate = {
       experiment,
       title: input.title,
       description: input.description,
-      builderVersion,
+      builderVersion: packageVersion,
     };
 
     return Promise.all([
@@ -106,139 +192,53 @@ export const installDependencies: ListrTask<BuilderContext> = {
   task: () => execa("npm", ["install"]),
 };
 
-export const prepareContext: ListrTask<BuilderContext> = {
-  title: "Reading experiment file",
-  task: async (ctx, task) => {
-    const experiment = ctx.experiment;
-
-    // Resolve experiment file
-    let experimentFile;
-    for (const suffix of ["", ".js", ".ts", ".jsx", ".tsx"]) {
-      const relativePath = "./src/" + experiment + suffix;
-      const absolutePath = resolveCwd.silent(relativePath);
-      if (absolutePath) {
-        experimentFile = relativePath;
-        ctx.absoluteExperimentFilePath = absolutePath;
-      }
-    }
-
-    task.title = "Reading " + experimentFile;
-
-    if (!experimentFile) {
-      let message = `Experiment file ${chalk.bold(
-        experiment + ".js"
-      )} (or .ts, .jsx, .tsx) does not exist.`;
-
-      if (experiment === defaultExperiment) {
-        message += ` Did you forget to provide the ${chalk.green("[experiment-file]")} argument?`;
-      }
-
-      throw new Error(message);
-    }
-
-    ctx.meta = loadDocblockPragmas(experimentFile);
-
-    for (let pragma of ["title", "description", "version"]) {
-      if (typeof ctx.meta[pragma] === "undefined") {
-        throw new Error(
-          `${chalk.bold(experimentFile)} does not specify a "${pragma}" pragma (like ${
-            chalk.blue(`@${pragma} `) + chalk.green(`My ${pragma}`)
-          }). Please add it and try again.`
-        );
-      }
-    }
-
-    ctx.relativeDistPath = ".jspsych-builder/" + experiment;
-    ctx.dist = path.resolve(ctx.relativeDistPath);
-
-    ctx.assetDirs = getAssetDirectories(ctx.meta);
-    ctx.assetDirsList = Object.values(ctx.assetDirs).flat();
-    ctx.assetDirGlobs = ctx.assetDirsList.map((dir) => dir + "/**/*");
-    ctx.assetPaths = await getAssetPaths(ctx.assetDirs);
-
-    // We need to ignore this since we're actually loading this at run-time.
-    const configPath = resolveCwd.silent(path.join(process.cwd(), "jspsych.config.cjs"))
-    // @ts-ignore
-    ctx.config = configPath ? require(configPath) : undefined
-  },
-};
-
-const clean: ListrTask<BuilderContext> = {
-  title: "Cleaning build directory",
-  task: (ctx) => del(ctx.dist!),
-};
-
-export const copyAssets: ListrTask<BuilderContext> = {
-  title: "Copying assets",
-  task: (ctx, task) => {
-    if (ctx.assetDirGlobs!.length === 0) {
-      task.skip("No asset directories have been specified.");
-      return;
-    } else {
-      const copy = () =>
-        pipeline(
-          gulp.src(ctx.assetDirGlobs!, { base: "media" }),
-
-          // For watching: Memorize the files and exclude asset files that did not change since the last copying
-          gulpCached("assets", { optimizeMemory: true }),
-
-          gulp.dest(ctx.dist + "/media")
-        );
-
-      if (ctx.watchAssets) {
-        task.title += " and starting to watch asset directories";
-        const watcher = gulp.watch(ctx.assetDirsList!, {}, copy);
-
-        // Mirror deletion of files and directories
-        const mirrorDeletion = (deletedPath: string) => {
-          del.sync(path.resolve(ctx.dist!, path.relative(path.resolve("."), deletedPath)));
-        };
-        watcher.on("unlink", mirrorDeletion);
-        watcher.on("unlinkDir", mirrorDeletion);
-
-        ctx.assetWatcher = watcher;
-      }
-
-      return copy();
-    }
-  },
-};
-
-const webpackBuild: ListrTask<BuilderContext> = {
-  title: "Building scripts and styles",
+export const build: ListrTask<BuilderContext> = {
+  title: "Building",
   task: (ctx) =>
-    new Promise<void>((resolve, reject) => {
-      webpack(getWebpackConfig(ctx), (err, stats) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        if (stats?.hasErrors()) {
-          reject(new Error(stats.toString({ all: false, errors: true })));
-          return;
-        }
-        if (stats?.hasWarnings()) {
-          console.log(stats.toString({ all: false, warnings: true }));
-        }
-        resolve();
-      });
+    new Observable((observer) => {
+      observer.next("reading source file");
+
+      prepareContext(ctx)
+        .then(() => {
+          const compiler = webpack(getWebpackConfig(ctx));
+          ctx.compiler = compiler;
+
+          if (process.stdout.isTTY) {
+            new webpack.ProgressPlugin((percentage, message) => {
+              observer.next(`${Math.round(percentage * 100)}% ${message}`);
+            }).apply(compiler);
+          } else {
+            observer.next("building");
+          }
+
+          compiler.run((error, stats) => {
+            if (error) {
+              observer.error(error);
+              return;
+            }
+            if (stats?.hasErrors()) {
+              observer.error(new Error(stats.toString({ all: false, errors: true })));
+              return;
+            }
+            if (stats?.hasWarnings()) {
+              console.log(stats.toString({ all: false, warnings: true }));
+            }
+            observer.complete();
+          });
+        })
+        .catch((error) => {
+          observer.error(error);
+        });
     }),
 };
 
 export const webpackDevServer: ListrTask<BuilderContext> = {
   title: "Starting development server",
   task: async (ctx) => {
-    const compiler = webpack({
-      ...getWebpackConfig(ctx),
-      infrastructureLogging: {
-        level: "error",
-      },
-    });
-
     const devServer = new WebpackDevServer(
       {
         static: {
-          directory: ctx.dist,
+          directory: distPath,
         },
         devMiddleware: {
           publicPath: "http://localhost:3000/",
@@ -248,8 +248,9 @@ export const webpackDevServer: ListrTask<BuilderContext> = {
           overlay: true,
         },
       },
-      compiler
+      ctx.compiler!
     );
+    ctx.devServer = devServer;
     await devServer.start();
 
     const addressInfo = devServer.server?.address();
@@ -261,25 +262,16 @@ export const webpackDevServer: ListrTask<BuilderContext> = {
   },
 };
 
-// Composed build task
-export const build: ListrTask<BuilderContext> = {
-  title: "Building ",
-  task: (ctx, task) => {
-    task.title += ctx.experiment;
-    return new Listr([prepareContext, clean, copyAssets, webpackBuild]);
-  },
-};
-
 // Create a zip archive with the build – either plain or for JATOS
 export const pack: ListrTask<BuilderContext> = {
   title: "Packaging experiment",
   task: async (ctx) => {
-    const { experiment, isForJatos, dist, meta } = ctx;
+    const { experiment, isForJatos, pragmas } = ctx;
 
-    const filename = experiment + "_" + meta.version + (isForJatos ? ".jzip" : ".zip");
+    const filename = experiment + "_" + pragmas?.version! + (isForJatos ? ".jzip" : ".zip");
 
     await pipeline(
-      gulp.src(dist + "/**/*"),
+      gulp.src(distPath + "/**/*"),
       gulpRename((file) => {
         file.dirname = experiment + "/" + file.dirname;
       }),
@@ -290,7 +282,12 @@ export const pack: ListrTask<BuilderContext> = {
         gulpFile(
           experiment + ".jas",
           JSON.stringify(
-            getJatosStudyMetadata(experiment, meta.title, meta.description, meta.version)
+            getJatosStudyMetadata(
+              experiment,
+              pragmas?.title!,
+              pragmas?.description!,
+              pragmas?.version!
+            )
           )
         )
       ),
@@ -299,7 +296,7 @@ export const pack: ListrTask<BuilderContext> = {
       gulp.dest("packaged")
     );
 
-    ctx.message = "Your build has been exported to " + chalk.cyan("packaged/" + filename);
+    ctx.message = "Your build has been exported to " + chalk.cyan(`packaged/${filename}`);
     if (isForJatos) {
       ctx.message += '\nYou can now import that file with a JATOS server ("import study"). Cheers!';
     }

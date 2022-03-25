@@ -1,11 +1,15 @@
 #!/usr/bin/env node
 
 import updateNotifier from "update-notifier";
+
 import { argv } from "./cli";
-import { name, version } from "../package.json";
+import { packageName, packageVersion } from "./config";
 
 // Notify about updates at the end
-updateNotifier({ packageName: name, packageVersion: version }).notify();
+updateNotifier({ pkg: { name: packageName, version: packageVersion } }).notify();
 
 // Run the program
 argv;
+
+// Export types for user code:
+export * from "./user-types";
