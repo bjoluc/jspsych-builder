@@ -125,7 +125,7 @@ export const getWebpackConfig = (context: BuilderContext) => {
       ],
     },
     performance: {
-      maxEntrypointSize: 512000,
+      maxEntrypointSize: 896000,
       maxAssetSize: 512000,
     },
     mode: context.isProduction ? "production" : "development",
