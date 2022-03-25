@@ -47,7 +47,7 @@ export async function build(experiment: string, isForJatos = false) {
   console.log(context.message);
 }
 
-export async function run(experiment: string) {
+export async function run(experiment: string, port?: number) {
   const ctx = await new Listr([
     { ...tasks.build, title: `Building ${experiment}` },
     tasks.webpackDevServer,
@@ -55,6 +55,7 @@ export async function run(experiment: string) {
     experiment,
     isProduction: false,
     isForJatos: false,
+    devServerPort: port,
   });
   console.log(ctx.message);
 

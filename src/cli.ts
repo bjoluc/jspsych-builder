@@ -84,13 +84,19 @@ export const argv = yargs(hideBin(process.argv))
   )
 
   .command(
-    "run [experiment-file]",
+    "run [experiment-file] [options]",
     "Build the specified experiment, start a local development server, and watch for " +
       "changes to the source files. " +
       "Once a source file is modified, update the build and any browser window " +
       "running the experiment.",
-    (yargsBuilder) => addExperimentFileOption(yargsBuilder),
-    ({ experimentFile }) => handleErrors(() => commands.run(experimentFile as string))
+    (yargsBuilder) =>
+      addExperimentFileOption(yargsBuilder).option("port", {
+        alias: "p",
+        type: "number",
+        description: "The port that the development server should listen on.",
+        defaultDescription: "the smallest port number >= 3000 available",
+      }),
+    ({ experimentFile, port }) => handleErrors(() => commands.run(experimentFile, port))
   )
 
   .command(
@@ -106,8 +112,7 @@ export const argv = yargs(hideBin(process.argv))
           "Package the experiment for JATOS. " +
           "The resulting jzip file can then be imported as a JATOS study by JATOS.",
       }),
-    ({ experimentFile, jatos }) =>
-      handleErrors(() => commands.build(experimentFile as string, jatos))
+    ({ experimentFile, jatos }) => handleErrors(() => commands.build(experimentFile, jatos))
   )
 
   .completion(
