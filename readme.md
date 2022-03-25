@@ -108,7 +108,7 @@ They are grouped by their media type (`images`, `video`, `audio`, `misc`), so yo
 
 > Migration notice:
 >
-> If you were previously using the `@imagesDir`, `@audioDir`, `@videoDir`, and `@miscDir` pragmas, you can migrate to the `@assets` pragma as in the following example:
+> If you were previously using the `@imagesDir`, `@audioDir`, `@videoDir`, and `@miscDir` pragmas, you can migrate to the `@assets` pragma as shown in the following example:
 >
 > ```diff
 > - @imagesDir images
@@ -116,7 +116,7 @@ They are grouped by their media type (`images`, `video`, `audio`, `misc`), so yo
 > + @assets media/images,media/audio/common,media/audio/my-experiment
 > ```
 >
-> Note that `@assets` doesn't prefix the paths with `media/`, as the deprecated `@...Dir` pragmas did.
+> Note that `@assets` doesn't prefix paths with `media/` like the deprecated `@...Dir` pragmas did.
 
 ### Styles
 
