@@ -1,3 +1,4 @@
+import { readFileSync } from "fs";
 import path from "path";
 import { fileURLToPath, pathToFileURL } from "url";
 
@@ -121,6 +122,31 @@ export const getWebpackConfig = (context: BuilderContext) => {
         {
           test: /\.s[ac]ss$/i,
           use: [{ loader: MiniCssExtractPlugin.loader }, "css-loader", "sass-loader"],
+        },
+
+        // Transform IIFE plugins from `@jspsych-contrib` to modules using `imports-loader` and `exports-loader`
+        {
+          test: (resource) => resource.includes("/@jspsych-contrib/plugin-"),
+          use: (info: any) => {
+            if (info.descriptionData.main) {
+              // The `main` field is not set in the IIFE plugin template, so we consider everything with
+              // a `main` field non-IIFE and ignore it here.
+              return [];
+            }
+
+            // Extract the global variable name of the plugin
+            const pluginVarNameMatches = /^var ([a-zA-Z]+) = \(function/m.exec(
+              readFileSync(info.resource).toString()
+            );
+            if (!pluginVarNameMatches) {
+              return [];
+            }
+
+            return [
+              "imports-loader?type=commonjs&imports=single|jspsych|jsPsychModule",
+              `exports-loader?type=commonjs&exports=single|${pluginVarNameMatches[1]}`,
+            ];
+          },
         },
       ],
     },
