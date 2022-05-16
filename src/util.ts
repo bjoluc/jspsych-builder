@@ -3,7 +3,7 @@ import fs from "fs/promises";
 
 import { diff } from "deep-diff";
 import { fileTypeFromFile } from "file-type";
-import glob from "glob-promise";
+import glob from "glob";
 import { extract, parse } from "jest-docblock";
 import { uniq } from "lodash-es";
 
@@ -50,8 +50,12 @@ export async function separateDirectoryAndFilePaths(paths: string[]) {
 /**
  * Returns the file paths of all (possibly nested) files in a directory.
  */
-export function resolveFilePaths(directoryPath: string) {
-  return glob(directoryPath + "/**/*", { nodir: true });
+export async function resolveFilePaths(directoryPath: string) {
+  return new Promise<string[]>((resolve, reject) => {
+    glob(directoryPath + "/**/*", { nodir: true }, (err, files) =>
+      err === null ? resolve(files) : reject(err)
+    );
+  });
 }
 
 export type AssetPaths = {

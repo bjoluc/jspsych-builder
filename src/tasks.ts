@@ -195,7 +195,7 @@ export const installDependencies: ListrTask<BuilderContext> = {
 
 export const build: ListrTask<BuilderContext> = {
   title: "Building",
-  task: (ctx) =>
+  task: async (ctx) =>
     new Observable((observer) => {
       observer.next("reading source file");
 
