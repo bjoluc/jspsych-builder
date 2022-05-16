@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.3.0](https://github.com/bjoluc/jspsych-builder/compare/v4.2.1...v4.3.0) (2022-05-16)
+
+
+### Features
+
+* Support module-style imports of non-module plugins from `[@jspsych-contrib](https://github.com/jspsych-contrib)` ([439e838](https://github.com/bjoluc/jspsych-builder/commit/439e83875780468317b18982e66e0f097dc8d94d))
+
 ### [4.2.1](https://github.com/bjoluc/jspsych-builder/compare/v4.2.0...v4.2.1) (2022-03-26)
 
 
