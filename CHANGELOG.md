@@ -17,7 +17,7 @@ All notable changes to this project will be documented in this file. See
 
 * Support module-style imports of non-module plugins from `[@jspsych-contrib](https://github.com/jspsych-contrib)` ([439e838](https://github.com/bjoluc/jspsych-builder/commit/439e83875780468317b18982e66e0f097dc8d94d))
 
-### [4.2.1](https://github.com/bjoluc/jspsych-builder/compare/v4.2.0...v4.2.1) (2022-03-26)
+## [4.2.1](https://github.com/bjoluc/jspsych-builder/compare/v4.2.0...v4.2.1) (2022-03-26)
 
 
 ### Bug Fixes
@@ -42,14 +42,14 @@ All notable changes to this project will be documented in this file. See
 * **`run` command:** Fix release asset watching of nested directories on MacOS and Windows ([03798b5](https://github.com/bjoluc/jspsych-builder/commit/03798b5b6708faca1327a14cff5f7aef42720a84)), closes [#13](https://github.com/bjoluc/jspsych-builder/issues/13)
 * Circumvent size warning due to inlined web fonts in jsPsych's stylesheet ([0db636c](https://github.com/bjoluc/jspsych-builder/commit/0db636c2b624485d556eeebc0d765b40b6f5e4a3))
 
-### [4.1.2](https://github.com/bjoluc/jspsych-builder/compare/v4.1.1...v4.1.2) (2022-02-09)
+## [4.1.2](https://github.com/bjoluc/jspsych-builder/compare/v4.1.1...v4.1.2) (2022-02-09)
 
 
 ### Bug Fixes
 
 * **Dependencies:** Update dependency versions and replace outdated dependencies ([67d78c0](https://github.com/bjoluc/jspsych-builder/commit/67d78c006d57d1b836daa28cb62a047da9a94c4f))
 
-### [4.1.1](https://github.com/bjoluc/jspsych-builder/compare/v4.1.0...v4.1.1) (2021-12-13)
+## [4.1.1](https://github.com/bjoluc/jspsych-builder/compare/v4.1.0...v4.1.1) (2021-12-13)
 
 
 ### Bug Fixes
@@ -69,7 +69,7 @@ All notable changes to this project will be documented in this file. See
 * **Template:** Fix `jatos` script in `package.json` ([1a0db16](https://github.com/bjoluc/jspsych-builder/commit/1a0db16857ce8b076d7dd186334799d267d21d9e))
 * **Template:** Set `private` flag in `package.json` ([533fa1a](https://github.com/bjoluc/jspsych-builder/commit/533fa1a52b8c32501bd1e2aaecb72a1ab1f18c24))
 
-### [4.0.1](https://github.com/bjoluc/jspsych-builder/compare/v4.0.0...v4.0.1) (2021-10-10)
+## [4.0.1](https://github.com/bjoluc/jspsych-builder/compare/v4.0.0...v4.0.1) (2021-10-10)
 
 
 ### Bug Fixes
@@ -134,7 +134,7 @@ and the jsPsych style sheet is not automatically imported anymore.
 
 * Require Node.js >=v12 ([61e2fd3](https://github.com/bjoluc/jspsych-builder/commit/61e2fd3337080e474081c4790ced29df1dd0ee37))
 
-### [1.4.2](https://github.com/bjoluc/jspsych-builder/compare/v1.4.1...v1.4.2) (2021-02-05)
+## [1.4.2](https://github.com/bjoluc/jspsych-builder/compare/v1.4.1...v1.4.2) (2021-02-05)
 
 
 ### Bug Fixes
@@ -142,7 +142,7 @@ and the jsPsych style sheet is not automatically imported anymore.
 * **Template:** Set the version pragma to `0.1.0` for new experiments ([039abc0](https://github.com/bjoluc/jspsych-builder/commit/039abc07f2511094d1d093c160db3b22d3342aee))
 * **Template:** Update jsPsych version to v6.2.0 ([699d166](https://github.com/bjoluc/jspsych-builder/commit/699d166d50534e6964ea6ec83330f9edf5cdcb61))
 
-### [1.4.1](https://github.com/bjoluc/jspsych-builder/compare/v1.4.0...v1.4.1) (2020-10-23)
+## [1.4.1](https://github.com/bjoluc/jspsych-builder/compare/v1.4.0...v1.4.1) (2020-10-23)
 
 
 ### Bug Fixes
@@ -165,7 +165,7 @@ and the jsPsych style sheet is not automatically imported anymore.
 * **CLI:** Enhance CLI (arguments, help messages, bash completion) ([4e7512b](https://github.com/bjoluc/jspsych-builder/commit/4e7512ba01990ae58f1a70a32ef434e14ca149cf))
 * **CLI:** Improve error presentation ([3df327c](https://github.com/bjoluc/jspsych-builder/commit/3df327ce43e6268d2bdc26e1d210ca91d50282b2))
 
-### [1.2.1](https://github.com/bjoluc/jspsych-builder/compare/v1.2.0...v1.2.1) (2020-09-18)
+## [1.2.1](https://github.com/bjoluc/jspsych-builder/compare/v1.2.0...v1.2.1) (2020-09-18)
 
 
 ### Bug Fixes
@@ -195,14 +195,14 @@ and the jsPsych style sheet is not automatically imported anymore.
 * **`init` command:** Optionally include `-e` option in success message ([823db5b](https://github.com/bjoluc/jspsych-builder/commit/823db5b45b27f3d39bae45f0c250232347d1e230))
 * **CLI:** Throw error if required pragma is missing in experiment file ([e3d5db3](https://github.com/bjoluc/jspsych-builder/commit/e3d5db3dddb170c9529449035d5cfd242a5aa8c2))
 
-### [1.0.2](https://github.com/bjoluc/jspsych-builder/compare/v1.0.1...v1.0.2) (2020-04-22)
+## [1.0.2](https://github.com/bjoluc/jspsych-builder/compare/v1.0.1...v1.0.2) (2020-04-22)
 
 
 ### Bug Fixes
 
 * **Assets:** Fix asset resolution ([43d51be](https://github.com/bjoluc/jspsych-builder/commit/43d51be2a0d781d83d981131fa72dce24c8313ee))
 
-### [1.0.1](https://github.com/bjoluc/jspsych-builder/compare/v1.0.0...v1.0.1) (2020-04-22)
+## [1.0.1](https://github.com/bjoluc/jspsych-builder/compare/v1.0.0...v1.0.1) (2020-04-22)
 
 
 ### Bug Fixes
