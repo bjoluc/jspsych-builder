@@ -7,10 +7,10 @@
     "jatos": "npm run jspsych -- build --jatos"
   },
   "dependencies": {
-    "jspsych": "^7.0.0",
-    "@jspsych/plugin-fullscreen": "^1.0.1",
-    "@jspsych/plugin-html-keyboard-response": "^1.0.0",
-    "@jspsych/plugin-preload": "^1.0.0"
+    "jspsych": "^7.2.3",
+    "@jspsych/plugin-fullscreen": "^1.1.1",
+    "@jspsych/plugin-html-keyboard-response": "^1.1.1",
+    "@jspsych/plugin-preload": "^1.1.1"
   },
   "devDependencies": {
     "jspsych-builder": "^<%= builderVersion %>"
