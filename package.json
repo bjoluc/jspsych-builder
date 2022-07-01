@@ -13,7 +13,7 @@
   },
   "homepage": "https://github.com/bjoluc/jspsych-builder#readme",
   "type": "module",
-  "typings": "dist/index.d.ts",
+  "types": "dist/index.d.ts",
   "files": [
     "src",
     "dist",
@@ -53,9 +53,6 @@
     "webpack-dev-server": "^4.9.0"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-class-properties": "^7.16.7",
-    "@babel/plugin-proposal-object-rest-spread": "^7.17.3",
-    "@babel/plugin-transform-classes": "^7.16.7",
     "@babel/preset-env": "^7.17.10",
     "@babel/preset-react": "^7.16.7",
     "@babel/preset-typescript": "^7.16.7",

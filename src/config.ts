@@ -3,12 +3,6 @@ import path from "path";
 import { fileURLToPath, pathToFileURL } from "url";
 
 // @ts-expect-error
-import babelPluginProposalClassProperties from "@babel/plugin-proposal-class-properties";
-// @ts-expect-error
-import babelPluginProposalObjectRestSpread from "@babel/plugin-proposal-object-rest-spread";
-// @ts-expect-error
-import babelPluginTransformClasses from "@babel/plugin-transform-classes";
-// @ts-expect-error
 import babelPresetEnv from "@babel/preset-env";
 // @ts-expect-error
 import babelPresetReact from "@babel/preset-react";
@@ -107,11 +101,6 @@ export const getWebpackConfig = (context: BuilderContext) => {
             loader: "babel-loader",
             options: {
               presets: [babelPresetEnv, babelPresetTypescript, babelPresetReact],
-              plugins: [
-                babelPluginProposalClassProperties,
-                [babelPluginTransformClasses, { loose: true }],
-                babelPluginProposalObjectRestSpread,
-              ],
             },
           },
         },
