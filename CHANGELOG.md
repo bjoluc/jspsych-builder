@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.3.1](https://github.com/bjoluc/jspsych-builder/compare/v4.3.0...v4.3.1) (2022-07-01)
+
+
+### Bug Fixes
+
+* Remove obsolete Babel plugins which broke TypeScript parameter properties ([5fcfe6b](https://github.com/bjoluc/jspsych-builder/commit/5fcfe6b6edffc8b94b593d4d3e3802bd110e5815))
+
 ## [4.3.0](https://github.com/bjoluc/jspsych-builder/compare/v4.2.1...v4.3.0) (2022-05-16)
 
 
