@@ -16,15 +16,16 @@ Focus on writing your timeline – let jsPsych Builder do the rest.
 Via a CDN, via standalone scripts, or via NPM (ES6).
 The latter option, while very convenient, is the hardest to manually set up.
 jsPsych Builder solves this by internally configuring common development tools (webpack, Babel, etc.) and exposing them via a simple CLI. Most notably, it:
-* sets up the HTML markup
-* provides a development mode with automated browser refreshing (using webpack-dev-server)
-* provides [Sass](https://sass-lang.com/) support
-* helps with media preloading for custom plugins (by compiling lists of file paths to be preloaded)
-* transpiles, bundles, and minifies scripts to guarantee wide browser compatibility and short loading times (using webpack and Babel)
-* provides TypeScript and React support – simply rename your files to `*.ts`, `*.tsx`, or `*.jsx`.
-* supports module-style imports of non-module plugins from `@jspsych-contrib`
-* offers to bundle all the required files for deployment, yielding a zip archive
-* offers to package experiments for [JATOS](https://www.jatos.org/)
+
+- sets up the HTML markup
+- provides a development mode with automated browser refreshing (using webpack-dev-server)
+- provides [Sass](https://sass-lang.com/) support
+- helps with media preloading for custom plugins (by compiling lists of file paths to be preloaded)
+- transpiles, bundles, and minifies scripts to guarantee wide browser compatibility and short loading times (using webpack and Babel)
+- provides TypeScript and React support – simply rename your files to `*.ts`, `*.tsx`, or `*.jsx`.
+- supports module-style imports of non-module plugins from `@jspsych-contrib`
+- offers to bundle all the required files for deployment, yielding a zip archive
+- offers to package experiments for [JATOS](https://www.jatos.org/)
 
 ## Requirements
 
@@ -32,7 +33,7 @@ jsPsych Builder requires [Node.js](https://nodejs.org) >= 14 to be installed on 
 
 ## Getting started
 
->**Attention:** Starting with version 3, jsPsych Builder exclusively supports jsPsych v7. If you need to work with jsPsych v6, consider using jsPsych Builder [v2.1.0](https://github.com/bjoluc/jspsych-builder/tree/v2.1.0) via `npx jspsych-builder@v2 init`.
+> **Attention:** Starting with version 3, jsPsych Builder exclusively supports jsPsych v7. If you need to work with jsPsych v6, consider using jsPsych Builder [v2.1.0](https://github.com/bjoluc/jspsych-builder/tree/v2.1.0) via `npx jspsych-builder@v2 init`.
 
 Create a new directory, open it in a terminal, and issue
 
@@ -93,15 +94,19 @@ This is where you specify the title, description, and version of your experiment
 
 The `@assets` pragma allows to include arbitrary asset files (like images, videos, etc.) in the build to use them in your experiment.
 The default value
+
 ```
 @assets assets/
 ```
+
 includes all files within the `assets` directory.
 You can also list individual files and directories, separated by commas.
 For instance,
+
 ```
 @assets assets/my-experiment,assets/fixmark.png,test.html
 ```
+
 would include all files within `assets/my-experiment`, as well as `assets/fixmark.png`, and `test.html`.
 
 The paths of all matched `asset` files are provided to the `run` function via the `assetPaths` parameter.

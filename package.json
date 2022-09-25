@@ -121,9 +121,8 @@
     }
   },
   "lint-staged": {
-    "{src,tests}/**/*.{js,ts}": [
-      "prettier --write"
-    ]
+    "{src,tests}/**/*.{js,ts}": "prettier --write",
+    "*.md": "prettier --write"
   },
   "release": {
     "extends": "@bjoluc/semantic-release-config-npm"
