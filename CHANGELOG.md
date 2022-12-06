@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.3.2](https://github.com/bjoluc/jspsych-builder/compare/v4.3.1...v4.3.2) (2022-12-06)
+
+
+### Bug Fixes
+
+* Fix security vulnerabilities by updating dependencies ([84bd8ed](https://github.com/bjoluc/jspsych-builder/commit/84bd8ed7de8c8e635f2f07b418dd1524394a1f1f))
+
 ## [4.3.1](https://github.com/bjoluc/jspsych-builder/compare/v4.3.0...v4.3.1) (2022-07-01)
 
 
