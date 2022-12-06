@@ -27,7 +27,7 @@
   },
   "scripts": {
     "start": "npm run build -- --watch --source-map",
-    "build": "./build.js",
+    "build": "node ./build.js",
     "prepare": "husky install",
     "prepack": "npm run build",
     "test": "node ./tests/story.js",
