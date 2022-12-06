@@ -146,9 +146,9 @@ async function prepareContext(ctx: BuilderContext) {
   ctx.config = await loadUserConfig();
 }
 
-export const compileProjectTemplate = {
+export const compileProjectTemplate: ListrTask<BuilderContext> = {
   title: "Compiling project template",
-  task: (ctx: BuilderContext) => {
+  task: (ctx) => {
     const templateDir = builderAssetsDir + "/template";
     const experiment = ctx.experiment;
     const input = ctx.userInput!;
