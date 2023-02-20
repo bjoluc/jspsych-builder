@@ -43,4 +43,4 @@ export interface RunFunctionOptions {
 /**
  * This function will be executed by jsPsych Builder and is expected to run the jsPsych experiment
  */
-export type RunFunction = (options: RunFunctionOptions) => Promise<JsPsych | undefined>;
+export type RunFunction = (options: RunFunctionOptions) => Promise<JsPsych | void>;
