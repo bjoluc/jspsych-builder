@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.3.3](https://github.com/bjoluc/jspsych-builder/compare/v4.3.2...v4.3.3) (2023-02-20)
+
+
+### Bug Fixes
+
+* **User Types:** Fix the return type of the `run` function to allow `Promise<void>` ([f9a7cca](https://github.com/bjoluc/jspsych-builder/commit/f9a7ccac26db8bc8cef00b919a1242214eb95a48))
+
 ## [4.3.2](https://github.com/bjoluc/jspsych-builder/compare/v4.3.1...v4.3.2) (2022-12-06)
 
 
