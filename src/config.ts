@@ -21,6 +21,7 @@ import webpack, { Configuration as WebpackConfiguration } from "webpack";
 
 import packageJson from "../package.json";
 import { BuilderContext } from "./tasks";
+import { Configuration as DevServerConfiguration } from "webpack-dev-server";
 
 // Global constants
 export const packageName = packageJson.name;
@@ -34,6 +35,7 @@ export const distPath = path.resolve(".jspsych-builder");
 
 export interface UserConfig {
   webpack?: (config: WebpackConfiguration) => WebpackConfiguration;
+  webpackDevServer?: (devServerConfig: DevServerConfiguration) => DevServerConfiguration;
 }
 
 /**
@@ -180,6 +182,19 @@ export const getWebpackConfig = (context: BuilderContext) => {
 
   return context.config?.webpack ? context.config.webpack(config) : config;
 };
+
+export function getWebpackDevServerConfig(context: BuilderContext) {
+  const config = {
+    static: {
+      directory: distPath,
+    },
+    port: context.devServerPort,
+    client: {
+      overlay: true,
+    },
+  };
+  return context.config?.webpackDevServer ? context.config.webpackDevServer(config) : config;
+}
 
 export function getJatosStudyMetadata(
   slug: string,

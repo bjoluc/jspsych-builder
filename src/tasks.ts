@@ -25,6 +25,7 @@ import {
   distPath,
   getJatosStudyMetadata,
   getWebpackConfig,
+  getWebpackDevServerConfig,
   loadUserConfig,
   packageVersion,
 } from "./config";
@@ -240,19 +241,10 @@ export const webpackDevServer: ListrTask<BuilderContext> = {
       ctx.devServerPort = await portFinder.getPortPromise({ port: 3000 });
     }
 
-    const devServer = new WebpackDevServer(
-      {
-        static: {
-          directory: distPath,
-        },
-        port: ctx.devServerPort,
-        client: {
-          overlay: true,
-        },
-      },
+    const devServer = (ctx.devServer = new WebpackDevServer(
+      getWebpackDevServerConfig(ctx),
       ctx.compiler!
-    );
-    ctx.devServer = devServer;
+    ));
     await devServer.start();
 
     const addressInfo = devServer.server?.address();
