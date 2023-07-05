@@ -26,8 +26,8 @@
     "node": ">=14.0.0"
   },
   "scripts": {
-    "start": "npm run build -- --watch --source-map",
-    "build": "node ./build.js",
+    "start": "npm run build -- --watch",
+    "build": "tsup",
     "prepare": "husky install",
     "prepack": "npm run build",
     "test": "node ./tests/story.js",

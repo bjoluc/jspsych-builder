@@ -1,10 +1,9 @@
-#!/usr/bin/env node
+import { defineConfig } from "tsup";
 
-import { build } from "tsup";
-
-build({
+export default defineConfig({
   clean: true,
   entry: ["src/index.ts"],
+  splitting: false,
   target: "node14",
   format: "esm",
   dts: true,
@@ -15,4 +14,4 @@ build({
   banner: {
     js: "import { createRequire } from 'module'; const require = createRequire(import.meta.url);",
   },
-}).catch(() => process.exit(1));
+});
