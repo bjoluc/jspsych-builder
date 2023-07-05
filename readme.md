@@ -165,7 +165,7 @@ export function webpack(config) {
 
 The function that you export gets the webpack config that jsPsych Builder has assembled internally.
 You can modify it and return your modified version so jsPsych Builder will use it instead of its own config.
-Similarly, if you need to alter webpack's [DevServer configuration](https://webpack.js.org/configuration/dev-server/), you can add
+Similarly, if you need to alter webpack's [DevServer configuration](https://webpack.js.org/configuration/dev-server/), you can do so via
 
 ```js
 /** @param {import("webpack-dev-server").Configuration} devServerConfig */
@@ -174,4 +174,4 @@ export function webpackDevServer(devServerConfig) {
 }
 ```
 
-to `builder.config.mjs` to modify jsPsych Builder's default webpack DevServer config to your liking.
+in `builder.config.mjs`.
