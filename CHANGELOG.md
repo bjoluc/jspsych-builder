@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.4.0](https://github.com/bjoluc/jspsych-builder/compare/v4.3.3...v4.4.0) (2023-07-07)
+
+
+### Features
+
+* Allow modifying the webpack DevServer configuration in `builder.config.mjs` ([099a495](https://github.com/bjoluc/jspsych-builder/commit/099a4957cc81769bc5757659b36502c42fa8d13b)), closes [#49](https://github.com/bjoluc/jspsych-builder/issues/49) [#49](https://github.com/bjoluc/jspsych-builder/issues/49)
+
 ## [4.3.3](https://github.com/bjoluc/jspsych-builder/compare/v4.3.2...v4.3.3) (2023-02-20)
 
 
