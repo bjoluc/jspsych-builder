@@ -19,7 +19,7 @@ import { initJsPsych } from "jspsych";
  *
  * @type {import("jspsych-builder").RunFunction}
  */
-export async function run({ assetPaths, input = {}, environment, title, version }) {
+export async function run({ assetPaths, input = {}, queryParams = {}, environment, title, version }) {
   const jsPsych = initJsPsych();
 
   const timeline = [];

@@ -9,6 +9,7 @@ const options = JSPSYCH_BUILDER_OPTIONS; // Injected by webpack
 
 if (typeof jatos === "undefined") {
   // Experiment is run locally
+  console.log("I am not running in JATOS")
   run({
     environment: process.env.NODE_ENV === "production" ? "production" : "development",
     ...options,
@@ -20,9 +21,14 @@ if (typeof jatos === "undefined") {
 } else {
   // Experiment is served by JATOS
   jatos.onLoad(async () => {
+    // Get query params
+    const queryParams = jatos.urlQueryParameters
+    console.log(`Jatos Query: ${JSON.stringify(queryParams)}`)
+    // Run the jsPsych Experiment
     const jsPsych = await run({
       environment: "jatos",
       input: jatos.studyJsonInput,
+      queryParams: queryParams,
       ...options,
     });
 

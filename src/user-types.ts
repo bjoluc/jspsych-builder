@@ -20,6 +20,11 @@ export interface RunFunctionOptions {
   input?: any;
 
   /**
+   * Query parameters Object passed from JATOS to the JsPsych survey.
+   */
+  queryParams?: any;
+
+  /**
    * The context in which the experiment is run:
    *
    * * `development` for `jspsych run`
