@@ -1,0 +1,8 @@
+onlyBuiltDependencies:
+  - "@parcel/watcher"
+  - core-js
+  - es5-ext
+  - esbuild
+publicHoistPattern:
+  - any-observable
+  - rxjs
