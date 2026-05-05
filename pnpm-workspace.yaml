@@ -6,3 +6,8 @@ onlyBuiltDependencies:
 publicHoistPattern:
   - any-observable
   - rxjs
+overrides:
+  chokidar: "^3.0.0"
+  glob-stream: "^7.0.0"
+  glob-parent: "^6.0.0"
+  micromatch: "^4.0.0"
